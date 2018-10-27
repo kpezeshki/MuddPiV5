@@ -1,0 +1,16 @@
+
+
+No  Name                  Plotter                Plot Type             Levels
+--  ----                  -------                ---------             ------
+ 1  Top Copper            Photo-Plotter          Routing                1 
+ 2  Bottom Copper         Photo-Plotter          Routing                4 
+ 3  Ground Plane          Photo-Plotter          Routing                2 
+ 4  Power Plane           Photo-Plotter          Routing                3 
+ 5  Silkscreen Layer      Photo-Plotter          Silkscreen Top         1 26 
+ 6  Top Soldermask        Photo-Plotter          Solder Mask            1 21 
+ 7  Bottom Soldermask     Photo-Plotter          Solder Mask            4 28 
+ 8  NC Drill              NC Drill               Plated Drill           1 
+ 9  Drill Drawing         Photo-Plotter          Drill Drawing          1 24 
+
+
+
