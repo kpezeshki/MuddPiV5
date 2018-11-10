@@ -1,0 +1,8 @@
+To blink an LED:
+
+p570
+
+1. Set power management in power management controller
+	Turn peripheral clock on
+2. Set pin to correct state in pin multiplexing
+3. 
