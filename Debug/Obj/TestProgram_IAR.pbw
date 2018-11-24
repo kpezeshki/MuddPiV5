@@ -6,10 +6,24 @@
     "display": "int main(void)",
     "location": {
       "column": "5",
-      "line": "2",
+      "line": "12",
       "path": "C:\\Users\\kaveh\\Documents\\MuddPiV5\\main.cpp"
     },
     "name": "main",
+    "origin": "project_file",
+    "scope": null
+  },
+  {
+    "ID": "c:main.cpp@141@F@main#@i",
+    "What": "Variable",
+    "defdec": "Def",
+    "display": "i",
+    "location": {
+      "column": "9",
+      "line": "14",
+      "path": "C:\\Users\\kaveh\\Documents\\MuddPiV5\\main.cpp"
+    },
+    "name": "i",
     "origin": "project_file",
     "scope": null
   }

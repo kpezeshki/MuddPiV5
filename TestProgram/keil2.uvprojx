@@ -10,6 +10,7 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -378,6 +379,58 @@
       <Groups>
         <Group>
           <GroupName>Source Group 1</GroupName>
+          <Files>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>pioa.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\pioa.h</FilePath>
+            </File>
+            <File>
+              <FileName>sam.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sam.h</FilePath>
+            </File>
+            <File>
+              <FileName>sam4s.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sam4s.h</FilePath>
+            </File>
+            <File>
+              <FileName>sam4s4b.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sam4s4b.h</FilePath>
+            </File>
+            <File>
+              <FileName>core_cm4.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\core_cm4.h</FilePath>
+            </File>
+            <File>
+              <FileName>system_sam4s.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\system_sam4s.h</FilePath>
+            </File>
+            <File>
+              <FileName>cmsis_compiler.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\cmsis_compiler.h</FilePath>
+            </File>
+            <File>
+              <FileName>cmsis_gcc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\cmsis_gcc.h</FilePath>
+            </File>
+            <File>
+              <FileName>cmsis_armcc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\cmsis_armcc.h</FilePath>
+            </File>
+          </Files>
         </Group>
       </Groups>
     </Target>

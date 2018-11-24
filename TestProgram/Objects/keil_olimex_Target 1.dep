@@ -1,0 +1,65 @@
+Dependencies for Project 'keil_olimex', Target 'Target 1': (DO NOT MODIFY !)
+F (.\main.c)(0x5BF5E396)(--c99 -c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include-D__UVISION_VERSION="524" -D_RTE_ -D__SAM3S4B__-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (RTE\Device\ATSAM3S4B\startup_SAM3S.s)(0x57DB1192)(--cpu Cortex-M3 --pd "__EVAL SETA 1" -g --apcs=interwork -I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include--pd "__UVISION_VERSION SETA 524" --pd "_RTE_ SETA 1" --pd "__SAM3S4B__ SETA 1"--list .\listings\startup_sam3s.lst --xref -o .\objects\startup_sam3s.o --depend .\objects\startup_sam3s.d)
+F (RTE\Device\ATSAM3S4B\system_SAM3S.c)(0x57DB1192)(--c99 -c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include-D__UVISION_VERSION="524" -D_RTE_ -D__SAM3S4B__-o .\objects\system_sam3s.o --omf_browse .\objects\system_sam3s.crf --depend .\objects\system_sam3s.d)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\sam3s.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\sam3s4b.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588C5634)
+I (C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include\core_cm3.h)(0x58991C7A)
+I (C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_compiler.h)(0x58991C7A)
+I (C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_armcc.h)(0x58991C7A)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\system_sam3s.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\acc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\adc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\chipid.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\crccu.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\dacc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\efc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\gpbr.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\hsmci.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\matrix.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\pdc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\pio.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\pmc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\pwm.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\rstc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\rtc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\rtt.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\spi.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\ssc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\supc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\tc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\twi.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\uart.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\udp.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\usart.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\component\wdt.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\hsmci.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\ssc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\spi.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\tc0.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\twi0.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\twi1.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\pwm.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\usart0.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\usart1.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\udp.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\adc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\dacc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\acc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\crccu.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\matrix.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\pmc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\uart0.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\chipid.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\uart1.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\efc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\pioa.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\piob.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\rstc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\supc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\rtt.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\wdt.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\rtc.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\instance\gpbr.h)(0x57DB1192)
+I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\pio\sam3s4b.h)(0x57DB1192)

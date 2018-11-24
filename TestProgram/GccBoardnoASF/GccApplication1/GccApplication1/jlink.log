@@ -1,6 +1,24 @@
-T31EC 320:934 SEGGER J-Link V6.40 Log File (0001ms, 84753ms total)
-T31EC 320:934 DLL Compiled: Oct 26 2018 15:06:02 (0001ms, 84753ms total)
-T31EC 320:934 Logging started @ 2018-11-10 01:32 (0001ms, 84753ms total)
-T31EC 320:952 JLINK_Close() (0010ms, 84763ms total)
-T31EC 320:952  (0010ms, 84763ms total)
-T31EC 320:952 Closed (0010ms, 84763ms total)
+T4190 87515:787 SEGGER J-Link V6.40 Log File (0000ms, 86880625ms total)
+T4190 87515:787 DLL Compiled: Oct 26 2018 15:06:02 (0000ms, 86880625ms total)
+T4190 87515:787 Logging started @ 2018-11-13 22:15 (0000ms, 86880625ms total)
+T4190 87515:795 JLINK_ExecCommand("Device = AT91SAM4S4B", ...). 
+  ***** API Error: API JLINK_ExecCommand function called before JLINKARM_Open()
+T4190 87515:795 
+  ***** Error: Cannot connect to J-Link via USB.JLINK_EMU_GetList(InterfaceMask = 0x00000001, MaxInfos = 0x00000032)   returns 0x00 (0001ms, 86880825ms total)
+T4190 87515:995   returns 0x00 (0000ms, 86880825ms total)
+
+  ***** API Error: API JLINK_TIF_Select function called before JLINKARM_Open()
+T16E4 87515:995 JLINK_EMU_GetList(InterfaceMask = 0x00000002, MaxInfos = 0x00000032)   returns 0x00 (0025ms, 86880850ms total)
+T4190 87516:020 
+  ***** Error: Cannot connect to J-Link via USB.JLINK_ConfigJTAG(IRPre = 0, DRPre = 0) (0000ms, 86880970ms total)
+
+  ***** API Error: API JLINK_SetSpeed function called before JLINKARM_Open()
+T4190 87516:140 
+  ***** Error: Cannot connect to J-Link via USB.JLINK_ResetPullsRESET(OFF) (0000ms, 86881378ms total)
+
+  ***** API Error: API JLINK_Connect function called before JLINKARM_Open()
+T4190 87516:548 
+  ***** Error: Cannot connect to J-Link via USB.JLINK_EMU_GetList(InterfaceMask = 0x00000001, MaxInfos = 0x00000032)   returns 0x00 (0001ms, 87266924ms total)
+T16E4 87902:094 JLINK_EMU_GetList(InterfaceMask = 0x00000002, MaxInfos = 0x00000032)   returns 0x00 (0026ms, 87266950ms total)
+
+  ***** API Error: API JLINK_IsHalted function called before JLINKARM_Open()
