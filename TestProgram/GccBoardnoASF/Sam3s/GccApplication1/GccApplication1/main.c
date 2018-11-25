@@ -57,8 +57,9 @@ int main(void)
 	REG_SPI_TDR = toSendArr[toSend];
 	toSend++;
 	if (toSend > 11) {toSend = 0;}
-	for(int i = 0; i < 3000; i++) {
-		}
+	//for(int i = 0; i < 3000; i++) {
+		//}
+		while ( !( (REG_SPI_SR & 1) & ((REG_SPI_SR >> 9) & 1) ) ); 
 	}
 	
 }

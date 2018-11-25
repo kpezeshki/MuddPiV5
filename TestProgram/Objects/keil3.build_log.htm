@@ -22,22 +22,20 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 C:\Users\kaveh\Documents\MuddPiV5\TestProgram\keil3.uvprojx
-Project File Date:  11/12/2018
+Project File Date:  11/24/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Rebuild target 'Target 1'
 assembling startup_SAM4S.s...
 compiling main.c...
-main.c(20): warning:  #111-D: statement is unreachable
-  		return 0;
-main.c(21): warning:  #1-D: last line of file ends without a newline
-  }
-main.c: 2 warnings, 0 errors
+main.c(43): warning:  #1-D: last line of file ends without a newline
+  	
+main.c: 1 warning, 0 errors
 compiling system_SAM4S.c...
 linking...
-Program Size: Code=672 RO-data=220 RW-data=0 ZI-data=1120  
-".\Objects\keil3.axf" - 0 Error(s), 2 Warning(s).
+Program Size: Code=740 RO-data=220 RW-data=0 ZI-data=1120  
+".\Objects\keil3.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -61,9 +59,9 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: Keil::Device:Startup:1.1.2
+      Source file:   Device\Source\ARM\SAM4xGPNVM.s
       Source file:   Device\Source\ARM\startup_SAM4S.s
       Source file:   Device\Source\system_SAM4S.c
-      Source file:   Device\Source\ARM\SAM4xGPNVM.s
 
    * Component: ARM::CMSIS:CORE:5.0.1
 Build Time Elapsed:  00:00:01

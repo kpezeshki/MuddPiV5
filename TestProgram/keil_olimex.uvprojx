@@ -414,7 +414,7 @@
       </component>
     </components>
     <files>
-      <file attr="config" category="source" condition="ARMCC Exe" name="sam3s\armcc\Device\SAM3S\Source\ARM\startup_SAM3S.s">
+      <file attr="config" category="source" condition="ARMCC Exe" name="sam3s\armcc\Device\SAM3S\Source\ARM\startup_SAM3S.s" version="1.0.0">
         <instance index="0">RTE\Device\ATSAM3S4B\startup_SAM3S.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Atmel" Cversion="1.0.0" condition="ATSAM3S4B"/>
         <package name="SAM3S_DFP" schemaVersion="1.3" url="http://packs.download.atmel.com/" vendor="Atmel" version="1.0.70"/>
@@ -422,7 +422,7 @@
           <targetInfo name="Target 1"/>
         </targetInfos>
       </file>
-      <file attr="config" category="source" condition="ARMCC Exe" name="sam3s\armcc\Device\SAM3S\Source\system_SAM3S.c">
+      <file attr="config" category="source" condition="ARMCC Exe" name="sam3s\armcc\Device\SAM3S\Source\system_SAM3S.c" version="1.0.0">
         <instance index="0">RTE\Device\ATSAM3S4B\system_SAM3S.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Atmel" Cversion="1.0.0" condition="ATSAM3S4B"/>
         <package name="SAM3S_DFP" schemaVersion="1.3" url="http://packs.download.atmel.com/" vendor="Atmel" version="1.0.70"/>
