@@ -11,6 +11,8 @@
 #define C			 4
 #define D			 5
 
+//POWER MANAGEMENT CONTROLLER
+
 #define PMC			((volatile unsigned long *) 0x400E0400)
 #define PMC_SCER	((volatile unsigned long *) (PMC + 0))
 #define PMC_SCDR	((volatile unsigned long *) (PMC + 1))
@@ -19,6 +21,8 @@
 #define PMC_PCDR0	((volatile unsigned long *) (PMC + 5))
 #define PMC_PCSR0	((volatile unsigned long *) (PMC + 6))
 #define PMC_WPMR	((volatile unsigned long *) (PMC + 57))
+
+//PARALLEL I/O PORT A
 
 #define PIO         ((volatile unsigned long *) 0x400E0E00)
 #define PIO_PER     ((volatile unsigned long *) (PIO + 0))
@@ -52,9 +56,28 @@
 #define PIO_OWER    ((volatile unsigned long *) (PIO + 40))
 #define PIO_OWDR    ((volatile unsigned long *) (PIO + 41))
 #define PIO_OWSR    ((volatile unsigned long *) (PIO + 42))
+#define PIO_WPMR_WPKEY_PASSWD (0x50494Fu << 8)
+
+//SPI
+
+
+
+
+
 
 void pioInit() {
+	//disabling PMC write protection
+
+	//disabling PIO write protection
+
+	//disabling SPI write protection
+
+	//disabling UART write protection
+
+	//disabling timer write protection
+
 	*PMC_PCER0 |= (0b111 << 11);
+
 }
 
 void pinMode(int pin, int function) {
