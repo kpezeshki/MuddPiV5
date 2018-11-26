@@ -46,8 +46,8 @@ To summarize the status of our final project, below is a summary of project deli
 	& Completed and assembled $\mu$Mudd respin & Not started \\
 	Reworking Lab 6 & Rewrite EasyPIO.h withSAM4S support & In progress \\
 	& Integrate MCP3002, photodiode, and BlueSMiRF & In progress \\
-	Testing other labs & Lab 4 & Not started \\
-	& Lab 5 & Not started \\
+	Testing other labs (pending& Lab 4 & Not started \\
+	 further discussion)& Lab 5 & Not started \\
 	& Lab 7 & Not started
 	\end{tabular}
 	\end{center}
@@ -109,27 +109,32 @@ We are currently implementing a set of changes to solve the problems noted above
 \section{Deliverable Status: Reworking Lab 6 and EasyPIO.h}
 
 \subsection{Reworking Lab 6}
+The proposed Lab 6 architecture is shown in detail below:
 
-block diagram with more detail (pin numbers)
+\begin{center}
+	\includegraphics[width=14cm]{blockdiagram.png}
+\end{center}
 
-Info about BlueSMiRF experimentation
+To maintain a low lab cost we exchanged one BlueSMiRF and the serial display for a computer with an integrated bluetooth module. We added a MCP3002 ADC to retain the datasheet interpretation component of the lab.
 
-Info about SPI with MCP3002 ADC
+We have successfully demonstrated bluetooth communication between two computers, using a Bus Pirate as a USB to UART converter. We have also successfully demonstrated voltage measurement with the MCP3002 through a SAM3S/SAM4S SPI peripheral.
 
-Remaining to-do items
+The remaining tasks in the rework of Lab 6 are testing our UART peripheral implementation on the SAM3S/SAM4S, and writing an updated version of the lab manual.
 
 \subsection{Targeting EasyPIO.h for the SAM4S}
 
-discuss GPIO / timer / uart / SPI
+We aim to create an I/O header file, EasySamIO.h, which provides Arduino-style access to the GPIO, timer, UART, and SPI peripherals on the SAM4S. In the style of EasyPIO.h, we provide only the configuration and functionality necessary to complete labs. We aim to provide adequate inline documentation for students to add functionality as necessary. This documentation includes functional descriptions of memory access, references to the lab manual, and brief descriptions of other peripheral features.
 
-current progress / challenges
+We have completed implementation of the GPIO, timer, and SPI peripherals, and are currently testing our UART implementation.
 
-documentation
+We believe a thorough and well-documented EasySamIO.h will be more valuable than tests of pre-existing labs as discussed in our project proposal.
 
-etc
-
-ask about completing easypio.h over testing labs?
-
-
+\clearpage
+\section{Appendix 1: Schematics and Layout}
+\clearpage
+\section{Appendix 2: C Code}
+\subsection{EasySamIO.h}
+\subsection{MCP3002 Voltage Measurement}
+\subsection{BlueSMiRF UART Communication}
 	
 \end{document}
