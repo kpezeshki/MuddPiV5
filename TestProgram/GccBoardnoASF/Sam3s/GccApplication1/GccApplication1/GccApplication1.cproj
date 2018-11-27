@@ -187,6 +187,9 @@
     <Compile Include="Device_Startup\system_sam3s.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="easySamIO.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>

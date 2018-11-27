@@ -64,7 +64,8 @@
       <ToolNumber>801005856</ToolNumber>
       <ToolName>J-Link</ToolName>
     </com_atmel_avrdbg_tool_samice>
-    <avrtoolinterface>JTAG</avrtoolinterface>
+    <avrtoolinterface>
+    </avrtoolinterface>
     <avrtoolinterfaceclock>32000</avrtoolinterfaceclock>
     <custom>
       <ToolOptions>

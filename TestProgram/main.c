@@ -16,7 +16,7 @@ int main(void) {
 		digitalWrite(10, HIGH);
 		for(int i = 0; i < 100000; i++);
 	}*/
-	
+	/*
 	char testChar;
 	samInit();
 	uartInit(4, 2);
@@ -24,12 +24,11 @@ int main(void) {
 		testChar = uartRx();
 		uartTx(testChar);
 	}
-	return 1;
+	return 1;*/
 
 		
 	
 	//Testing Lab 6
-	/*
 	unsigned short received = 0;
 	float voltage;
 	spiInit(255, 0, 0);
@@ -52,7 +51,7 @@ int main(void) {
 			uartTx(strTransmit[charNum]);
 		}
 		
-	} */
+	}
 	
 	
 	/*
@@ -61,4 +60,4 @@ int main(void) {
 		uartTx(0x01);
 		uartTx(0x02);
 	}*/
-}	
+}
