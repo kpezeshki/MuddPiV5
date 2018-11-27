@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workspace>
     <project>
+        <path>$WS_DIR$\iar_olimex\iar_olimex.ewp</path>
+    </project>
+    <project>
         <path>$WS_DIR$\TestProgram_IAR.ewp</path>
     </project>
     <batchBuild />

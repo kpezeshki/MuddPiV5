@@ -1,6 +1,7 @@
 Dependencies for Project 'keil_olimex', Target 'Target 1': (DO NOT MODIFY !)
-F (.\main.c)(0x5BFA1C91)(--c99 -c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include-D__UVISION_VERSION="524" -D_RTE_ -D__SAM3S4B__-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
-I (easySamIO.h)(0x5BFA1722)
+F (.\main.c)(0x5BFD0DB6)(--c99 -c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include-D__UVISION_VERSION="524" -D_RTE_ -D__SAM3S4B__-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+I (easySamIO.h)(0x5BFD0CC2)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588C5634)
 F (RTE\Device\ATSAM3S4B\startup_SAM3S.s)(0x57DB1192)(--cpu Cortex-M3 --pd "__EVAL SETA 1" -g --apcs=interwork -I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include--pd "__UVISION_VERSION SETA 524" --pd "_RTE_ SETA 1" --pd "__SAM3S4B__ SETA 1"--list .\listings\startup_sam3s.lst --xref -o .\objects\startup_sam3s.o --depend .\objects\startup_sam3s.d)
 F (RTE\Device\ATSAM3S4B\system_SAM3S.c)(0x57DB1192)(--c99 -c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include-D__UVISION_VERSION="524" -D_RTE_ -D__SAM3S4B__-o .\objects\system_sam3s.o --omf_browse .\objects\system_sam3s.crf --depend .\objects\system_sam3s.d)
 I (C:\Keil_v5\ARM\PACK\Atmel\SAM3S_DFP\1.0.70\sam3s\include\sam3s.h)(0x57DB1192)

@@ -377,7 +377,7 @@ void timerInit() {
 // Works until 2097 ms
 // Resolution of 32 us
 void delay_ms(int num) {
-	REG_TC0_TMR |= 0b11; // Using TIMER_CLOCK4
+	REG_TC0_CMR |= 0b11; // Using TIMER_CLOCK4
 	REG_TC0_RC  = (unsigned long) (TIMER_CLOCK4 * (((float) num) / 1000)); // Compare value
 	REG_TC0_CCR |= (1 << 2); // Reset counter
 	while (!((REG_TC0_SR >> 4) & 1)); // Delay until match

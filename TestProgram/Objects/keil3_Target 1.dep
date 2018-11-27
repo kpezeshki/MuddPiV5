@@ -1,7 +1,7 @@
 Dependencies for Project 'keil3', Target 'Target 1': (DO NOT MODIFY !)
-F (.\main.c)(0x5BF9FB32)(--c99 -c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\SAM4_DFP\1.6.1\Device\Include\SAM4S-D__UVISION_VERSION="524" -D_RTE_ -D__SAM4S4B__-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
-I (easySamIO.h)(0x5BF9F6F9)
-F (.\easySamIO.h)(0x5BF9F6F9)()
+F (.\main.c)(0x5BFCFD65)(--c99 -c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\SAM4_DFP\1.6.1\Device\Include\SAM4S-D__UVISION_VERSION="524" -D_RTE_ -D__SAM4S4B__-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+I (easySamIO.h)(0x5BFCFA4D)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588C5634)
 F (RTE\Device\ATSAM4S4B\startup_SAM4S.s)(0x54760C16)(--cpu Cortex-M4 --pd "__EVAL SETA 1" -g --apcs=interwork -I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\SAM4_DFP\1.6.1\Device\Include\SAM4S--pd "__UVISION_VERSION SETA 524" --pd "_RTE_ SETA 1" --pd "__SAM4S4B__ SETA 1"--list .\listings\startup_sam4s.lst --xref -o .\objects\startup_sam4s.o --depend .\objects\startup_sam4s.d)
 F (RTE\Device\ATSAM4S4B\system_SAM4S.c)(0x59DFAD20)(--c99 -c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\SAM4_DFP\1.6.1\Device\Include\SAM4S-D__UVISION_VERSION="524" -D_RTE_ -D__SAM4S4B__-o .\objects\system_sam4s.o --omf_browse .\objects\system_sam4s.crf --depend .\objects\system_sam4s.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588C5634)

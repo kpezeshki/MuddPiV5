@@ -29,17 +29,15 @@ Project File Date:  11/24/2018
 Rebuild target 'Target 1'
 assembling startup_SAM3S.s...
 compiling main.c...
-main.c(22): warning:  #177-D: variable "toSend"  was declared but never referenced
-  	char toSend = 0;
-main.c(23): warning:  #177-D: variable "toSendArr"  was declared but never referenced
-  	char toSendArr[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21};
-main.c(40): warning:  #1-D: last line of file ends without a newline
-  	
-main.c: 3 warnings, 0 errors
+main.c(27): warning:  #111-D: statement is unreachable
+  	return 1;
+main.c(64): warning:  #1-D: last line of file ends without a newline
+  }	
+main.c: 2 warnings, 0 errors
 compiling system_SAM3S.c...
 linking...
-Program Size: Code=3512 RO-data=220 RW-data=0 ZI-data=608  
-".\Objects\keil_olimex.axf" - 0 Error(s), 3 Warning(s).
+Program Size: Code=1356 RO-data=220 RW-data=0 ZI-data=608  
+".\Objects\keil_olimex.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -63,11 +61,11 @@ Package Vendor: Microchip
 <h2>Collection of Component Files used:</h2>
 
    * Component: Microchip::Device:Startup:1.0.0
-      Include file:  sam3s\include\sam.h
-      Source file:   sam3s\templates\main.c
-      Source file:   sam3s\templates\main.cpp
       Source file:   sam3s\armcc\Device\SAM3S\Source\ARM\startup_SAM3S.s
       Source file:   sam3s\armcc\Device\SAM3S\Source\system_SAM3S.c
+      Source file:   sam3s\templates\main.c
+      Include file:  sam3s\include\sam.h
+      Source file:   sam3s\templates\main.cpp
 
    * Component: ARM::CMSIS:CORE:5.0.1
 Build Time Elapsed:  00:00:01
