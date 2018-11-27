@@ -1,8 +1,8 @@
 // cferrarin@g.hmc.edu
 // kpezeshki@g.hmc.edu
-// 11/24/2018
+// 11/26/2018
 
-// all page numbers reference the SAM4S Series Datasheet as of 11/24/2018
+// all page numbers reference the SAM4S Series Datasheet as of 11/26/2018
 
 /* This header file simplifies peripheral memory access for the ATSAM4S4B for four peripherals:
    1) PMC (Power Management Controller): Controls embeddded system and peripheral clocks. (p418)
@@ -34,6 +34,15 @@
 #define B			 3
 #define C			 4
 #define D			 5
+
+#define MCK			 4000000
+#define TIMER_CLOCK1 (MCK / 2)
+#define TIMER_CLOCK4 (MCK / 128)
+
+
+/*----------------------------
+--------REGISTERS-------------
+----------------------------*/
 
 //POWER MANAGEMENT CONTROLLER
 
@@ -151,12 +160,43 @@
 
   #define SPI_WPMR_WPKEY_PASSWD         (0x535049u << 8) /**< \brief (SPI_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
 
-
 //UART
 
-//Timer
+  #define REG_UART_CR   (*(  volatile unsigned int *)0x400E0600U) /**< \brief (UART) Control Register */
+  #define REG_UART_MR   (*(  volatile unsigned int *)0x400E0604U) /**< \brief (UART) Mode Register */
+  #define REG_UART_IER  (*(  volatile unsigned int *)0x400E0608U) /**< \brief (UART) Interrupt Enable Register */
+  #define REG_UART_IDR  (*(  volatile unsigned int *)0x400E060CU) /**< \brief (UART) Interrupt Disable Register */
+  #define REG_UART_IMR  (*(  volatile unsigned int *)0x400E0610U) /**< \brief (UART) Interrupt Mask Register */
+  #define REG_UART_SR   (*(  volatile unsigned int *)0x400E0614U) /**< \brief (UART) Status Register */
+  #define REG_UART_RHR  (*(  volatile unsigned int *)0x400E0618U) /**< \brief (UART) Receive Holding Register */
+  #define REG_UART_THR  (*(  volatile unsigned int *)0x400E061CU) /**< \brief (UART) Transmit Holding Register */
+  #define REG_UART_BRGR (*(  volatile unsigned int *)0x400E0620U) /**< \brief (UART) Baud Rate Generator Register */
 
 
+//TIMER COUNTER 0
+
+  #define REG_TC0_CCR  (*(  volatile unsigned int *)0x40010000U) /**< \brief (TC0) Channel Control Register */
+  #define REG_TC0_CMR  (*(  volatile unsigned int *)0x40010004U) /**< \brief (TC0) Channel Mode Register */
+  #define REG_TC0_SMMR (*(  volatile unsigned int *)0x40010008U) /**< \brief (TC0) Stepper Motor Mode Register */
+  #define REG_TC0_CV   (*(  volatile unsigned int *)0x40010010U) /**< \brief (TC0) Counter Value Register */
+  #define REG_TC0_RA   (*(  volatile unsigned int *)0x40010014U) /**< \brief (TC0) Register A Register */
+  #define REG_TC0_RB   (*(  volatile unsigned int *)0x40010018U) /**< \brief (TC0) Register B Register */
+  #define REG_TC0_RC   (*(  volatile unsigned int *)0x4001001CU) /**< \brief (TC0) Register C Register */
+  #define REG_TC0_SR   (*(  volatile unsigned int *)0x40010020U) /**< \brief (TC0) Status Register */
+  #define REG_TC0_IER  (*(  volatile unsigned int *)0x40010024U) /**< \brief (TC0) Interrupt Enable Register */
+  #define REG_TC0_IDR  (*(  volatile unsigned int *)0x40010028U) /**< \brief (TC0) Interrupt Disable Register */
+  #define REG_TC0_IMR  (*(  volatile unsigned int *)0x4001002CU) /**< \brief (TC0) Interrupt Mask Register */
+
+  #define REG_TC_BCR   (*(  volatile unsigned int *)0x400100C0U) /**< \brief (TC) Block Control Register */
+  #define REG_TC_BMR   (*(  volatile unsigned int *)0x400100C4U) /**< \brief (TC) Block Mode Register */
+  #define REG_TC_QIER  (*(  volatile unsigned int *)0x400100C8U) /**< \brief (TC) QDEC Interrupt Enable Register */
+  #define REG_TC_QIDR  (*(  volatile unsigned int *)0x400100CCU) /**< \brief (TC) QDEC Interrupt Disable Register */
+  #define REG_TC_QIMR  (*(  volatile unsigned int *)0x400100D0U) /**< \brief (TC) QDEC Interrupt Mask Register */
+  #define REG_TC_QISR  (*(  volatile unsigned int *)0x400100D4U) /**< \brief (TC) QDEC Interrupt Status Register */
+  #define REG_TC_FMR   (*(  volatile unsigned int *)0x400100D8U) /**< \brief (TC) Fault Mode Register */
+  #define REG_TC_WPMR  (*(  volatile unsigned int *)0x400100E4U) /**< \brief (TC) Write Protect Mode Register */
+
+  #define TC_WPMR_WPKEY_PASSWD (0x54494Du << 8) /**< \brief (TC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
 void samInit() {
     //Many peripherals on the SAM4S are write protected: unless the correct password is written in a peripheral memory address, write access to peripheral control registers is disabled. This is done for security reasons, but is not necessary in this header file. In the first part of this function, we enable write access to the PMC, PIO, SPI, and UART by writing a password into the peripheral's Write Protect Mode Register (WPMR)
@@ -168,13 +208,14 @@ void samInit() {
     REG_PIOA_WPMR = PIO_WPMR_WPKEY_PASSWD;
 	//disabling SPI write protection (Password: "SPI")
     REG_SPI_WPMR = SPI_WPMR_WPKEY_PASSWD;
-	//disabling UART write protection
+	//There is no UART write protection
 
-	//disabling timer write protection
+	//disabling timer write protection (Password: "TIM")
+    REG_TC_WPMR = TC_WPMR_WPKEY_PASSWD;
 
     //We next need to supply a clock to these peripherals. For a given peripheral, clock is enabled by writing a 1 into a specific bit of the PMC Peripheral Clock Enable Register (PCER). There are two registers for the 34 peripherals. Peripheral - bit number mapping is given in p36: Peripheral Identifiers.
 
-    //Activating clocks for UART 0 (PID 8), PIO A (PID 11), SPI (PID 21), TC0 (Timer/Counter CH0) (PID 23)  
+    //Activating clocks for UART 0 (PID 8), PIO A (PID 11), SPI (PID 21), TC0 (Timer/Counter CH0) (PID 23)
 
 	REG_PMC_PCER0 |= (1<<8);
 	REG_PMC_PCER0 |= (1<<11);
@@ -182,8 +223,12 @@ void samInit() {
 	REG_PMC_PCER0 |= (1<<23);
 }
 
+
+/*----------------------------
+--------PIO METHODS-------------
+----------------------------*/
+
 void pinMode(int pin, int function) {
-	
 	REG_PIOA_IFDR  |=  (1 << pin);
 	REG_PIOA_IER   &= ~(1 << pin);
 	REG_PIOA_IDR   |=  (1 << pin);
@@ -245,6 +290,16 @@ int digitalRead(int pin) {
 	return (REG_PIOA_PDSR >> pin) & 1;
 }
 
+void toggle(int pin) {
+	int currentVal = digitalRead(pin);
+	digitalWrite(pin, !currentVal);
+}
+
+
+/*----------------------------
+--------SPI METHODS-------------
+----------------------------*/
+
 void spiInit(char clkdivide, int cpol, int ncpha) {
     /*Initializes the SPI interface for Chip Select line 0
 
@@ -305,7 +360,69 @@ short spiSendReceive16(short send) {
     return rec;
 }
 
-void toggle(int pin) {
-	int currentVal = digitalRead(pin);
-	digitalWrite(pin, !currentVal);
+
+/*----------------------------
+--------TIMER METHODS-------------
+----------------------------*/
+
+void timerInit() {
+	// Enable clock to channel
+	REG_TC0_CCR	   &= ~(1 << 1);
+    REG_TC0_CCR	   |= 1;
+	
+	REG_TC0_CMR    |= (1 << 15); // WAVE = 1 (waveform mode)
+	REG_TC0_CMR	   |= (1 << 14); // WAVESEL = 2 (UP_RC waveform)
+}
+
+// Works until 2097 ms
+// Resolution of 32 us
+void delay_ms(int num) {
+	REG_TC0_TMR |= 0b11; // Using TIMER_CLOCK4
+	REG_TC0_RC  = (unsigned long) (TIMER_CLOCK4 * (((float) num) / 1000)); // Compare value
+	REG_TC0_CCR |= (1 << 2); // Reset counter
+	while (!((REG_TC0_SR >> 4) & 1)); // Delay until match
+}
+
+
+/*----------------------------
+--------UART METHODS-------------
+----------------------------*/
+
+/* Initialize UART. Note that pin PA9 is used as receive and pin PA10 
+ * is used as transmit. pioInit() must be called first.
+ * parity:
+ *	 0: Even
+ *	 1: Odd
+ *	 2: Space (forced to 0)
+ *	 3: Mark (forced to 1)
+ *	 4: No (no parity)
+ * Baud Rate =  MCK/(16*CD), CD is an unsigned short
+ */	
+void uartInit(int parity, int CD) {
+	pinMode(9, A);		  // Set URXD0 pin mode
+	pinMode(10, A);		  // Set ITXD0 pin mode
+
+	REG_UART_CR   |= 1 << 6; // Enable transmitter
+	REG_UART_CR   |= 1 << 4; // Enable receiver
+	
+	// Parity
+	//REG_UART_MR   |= parity << 9;    
+	//REG_UART_MR   &= ~(parity << 9);
+	REG_UART_MR   |= 1 << 11;
+	REG_UART_MR   &= ~((0b11) << 9);
+	
+	REG_UART_BRGR = CD;	  // Set baud rate divider
+}
+
+// Transmits a character (1 byte) over UART
+void uartTx(char data) {
+	while (!((REG_UART_SR >> 1) & 1)); // Wait until previous data has been transmitted
+	REG_UART_THR = data; // Write data into holding register for transmit
+}
+
+// Returns a character (1 byte) received over UART
+char uartRx() {
+	while(!((REG_UART_SR) & 1)); // Wait until data has been received
+	return (char) REG_UART_RHR; // Return received data in holding register
+	
 }
