@@ -25,17 +25,17 @@
 --------CONSTANTS-------------
 ----------------------------*/
 
-#define LOW			 0
-#define HIGH		 1
+#define LOW          0
+#define HIGH         1
 
-#define INPUT		 0
-#define OUTPUT		 1
-#define A			 2
-#define B			 3
-#define C			 4
-#define D			 5
+#define INPUT        0
+#define OUTPUT       1
+#define A            2
+#define B            3
+#define C            4
+#define D            5
 
-#define MCK			 4000000
+#define MCK          4000000
 #define TIMER_CLOCK1 (MCK / 2)
 #define TIMER_CLOCK4 (MCK / 128)
 
