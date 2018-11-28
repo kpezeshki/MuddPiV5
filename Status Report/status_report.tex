@@ -5,7 +5,7 @@
 
 \title{E155 Final Project Status Report: $\mu$Mudd Mark V Debugging and Lab 6 Revision}
 \author{Christopher Ferrarin and Kaveh Pezeshki}
-\date{31 November 2018}
+\date{28 November 2018}
 
 \begin{document}
 	\begin{LARGE}
@@ -29,11 +29,11 @@
 	\begin{large}
 	Christopher Ferrarin and Kaveh Pezeshki
 	
-	31 November 2018
+	28 November 2018
 	\end{large}
 
 \section{Completed Deliverables Status}
-To summarize the status of our final project, below is a summary of project deliverables and deliverable status.
+Below is a summary of project deliverables and deliverable status:
 
 	\begin{center}
 	\begin{tabular}{p{6cm}p{5cm}p{4cm}}
@@ -43,11 +43,12 @@ To summarize the status of our final project, below is a summary of project deli
 	Revising $\mu$Mudd to allow MCU functionality & Hardware modification of pre-existing PCBs & Complete \\
 	& New JTAG cable & Complete \\
 	& Modified schematic and layout & In progress \\
-	& Completed and assembled $\mu$Mudd respin & Not started \\
-	Reworking Lab 6 & Rewrite EasyPIO.h withSAM4S support & In progress \\
-	& Integrate MCP3002, photodiode, and BlueSMiRF & In progress \\
-	Testing other labs (pending& Lab 4 & Not started \\
-	 further discussion)& Lab 5 & Not started \\
+	& Completed  $\mu$Mudd respin & Not started \\
+	Reworking Lab 6 & Rewrite EasyPIO.h with SAM4S support & Complete \\
+	& Integrate MCP3002, photodiode, and BlueSMiRF & Complete \\
+	& Formally write up lab for student readability & Not started \\
+	Testing other labs & Lab 4 & Not started \\
+	& Lab 5 & Not started \\
 	& Lab 7 & Not started
 	\end{tabular}
 	\end{center}
@@ -59,7 +60,7 @@ A major component of this final project is identifying errors in the PCB design 
 \subsection{Schematic Errors}
 
 \subsubsection{MCU ERASE Pin}
-The largest problem with the current $\mu$Mudd design lies in the MCU ERASE pin, which reinitializes the onboard flash as well as resetting the processor. The ERASE pin can also serve as general-purpose I/O after configuration. \footnote{SAM4S Series Datasheet p37}
+The largest problem with the current $\mu$Mudd design lies in the MCU ERASE pin, which reinitializes the onboard flash and resets the processor. The ERASE pin can also serve as general-purpose I/O after configuration. \footnote{SAM4S Series Datasheet p37}
 
 On boot, ERASE must be held low to prevent flash erase and reinitialization of the processor. On the current $\mu$Mudd, ERASE was tied to a general I/O pin on the Cyclone IV FPGA. The connection can be seen in the following schematic:
 
@@ -68,7 +69,7 @@ On boot, ERASE must be held low to prevent flash erase and reinitialization of t
 	\caption{The marked connection ties ERASE on the MCU to pin 128 on the FPGA}
 \end{center}
 
-The ERASE pin contains a 100k$\Omega$ pull-down resistor\footnote{SAM4S Series Datasheet p37}.An unconfigured Cyclone IV I/O pin contains a 25k$\Omega$ pull-up resistor \footnote{Cyclone IV Device Handbook p6-3}. This creates a resistor divider circuit as shown below:
+The ERASE pin contains a 100k$\Omega$ pull-down resistor\footnote{SAM4S Series Datasheet p37}.An unconfigured Cyclone IV I/O pin contains a 25k$\Omega$ pull-up resistor \footnote{Cyclone IV Device Handbook p6-3}. This creates a voltage divider circuit as shown below:
 
 \begin{center}
 	\includegraphics[width=6cm]{resistor_divider.png}
@@ -91,18 +92,18 @@ We believe that these potential timing errors can cause system instability, as w
 
 \subsubsection{JTAG connector pinout}
 
-The MCU JTAG connector was incorrectly wired on the current $\mu$Mudd.
+The MCU JTAG connector was incorrectly wired on the current $\mu$Mudd. This led to wiring errors in the I$^2$C connection
 
 \subsection{Schematic and Layout Changes}
 
-We are currently implementing a set of changes to solve the problems noted above and to improve the PCB. These include:
+We have implemented a set of changes to the schematic to solve the problems noted above and to improve the PCB, but have not yet propagated these changes to the layout. These include:
 
 \begin{enumerate}
 	\item Moving ERASE control to the MCU RESET pushbutton. RESET will be accessible through JTAG
-	\item Powering the 1.2V MCU VDDCORE with the onboard regulator
-	\item Correcting JTAG wiring erros
+	\item Powering the 1.2V MCU VDDCORE with the onboard regulator, and adding necessary passives
+	\item Correcting JTAG and I$^2$C wiring errors
 	\item Replacing 0.1" pitch JTAG connectors with 0.05" pitch SWD connectors. This adds compatibility with J-Link EDU Mini programmers
-	\item Adding a separate 40MHz clock to the FPGA. The clock is currently supplied by a MCU I/O pin
+	\item Adding 0.1'' jumpers on critical MCU pin connections to assist debugging 
 \end{enumerate}
 
 \newpage
@@ -115,26 +116,25 @@ The proposed Lab 6 architecture is shown in detail below:
 	\includegraphics[width=14cm]{blockdiagram.png}
 \end{center}
 
-To maintain a low lab cost we exchanged one BlueSMiRF and the serial display for a computer with an integrated bluetooth module. We added a MCP3002 ADC to retain the datasheet interpretation component of the lab.
+To maintain a low lab cost we exchanged one BlueSMiRF and the serial display for a computer with an integrated Bluetooth module. We added a MCP3002 ADC to retain the datasheet interpretation component of the lab.
 
-We have successfully demonstrated bluetooth communication between two computers, using a Bus Pirate as a USB to UART converter. We have also successfully demonstrated voltage measurement with the MCP3002 through a SAM3S/SAM4S SPI peripheral.
+We have successfully demonstrated Bluetooth communication between two computers, using a Bus Pirate as a USB to UART converter. We have also successfully demonstrated voltage measurement with the MCP3002 through a SAM3S/SAM4S SPI peripheral.
 
-The remaining tasks in the rework of Lab 6 are testing our UART peripheral implementation on the SAM3S/SAM4S, and writing an updated version of the lab manual.
+In reworking Lab 6, we still need to write an updated version of the lab manual and polish it so that it easily readable by a future student. We also seek to implement any recommendations we receive in our presentation for ways to improve this lab, as the replacement of the web server with a Bluetooth link may render the lab simpler than we'd like.
 
-\subsection{Targeting EasyPIO.h for the SAM4S}
+\subsection{Targeting easyPIO.h for the SAM4S}
 
-We aim to create an I/O header file, EasySamIO.h, which provides Arduino-style access to the GPIO, timer, UART, and SPI peripherals on the SAM4S. In the style of EasyPIO.h, we provide only the configuration and functionality necessary to complete labs. We aim to provide adequate inline documentation for students to add functionality as necessary. This documentation includes functional descriptions of memory access, references to the lab manual, and brief descriptions of other peripheral features.
+We have created an I/O header file, easySamIO.h, which provides Arduino-style access to the GPIO, timer, UART, and SPI peripherals on the SAM4S. In the style of easyPIO.h, we provide only the configuration and functionality necessary to complete labs. We aim to provide adequate inline documentation for students to add functionality as necessary. This documentation includes functional descriptions of memory access, references to the datasheet, and brief descriptions of other peripheral features.
 
-We have completed implementation of the GPIO, timer, and SPI peripherals, and are currently testing our UART implementation.
+In total, we have completed implementation of the PIO, timer, SPI, and UART peripherals, but still need to provide access to additional ports of the PIO peripheral, additional channels of the timer peripheral, and additional clock routing for the FPGA on the $\mu$Mudd.
 
-We believe a thorough and well-documented EasySamIO.h will be more valuable than tests of pre-existing labs as discussed in our project proposal.
+We believe a thorough and well-documented EasySamIO.h will be more useful for lab 4,5, and 7 bringup than testing labs 4,5, and 7 as discussed in the lab manual.
 
 \clearpage
-\section{Appendix 1: Schematics and Layout}
+\section{Appendix 1: Updated Schematic}
 \clearpage
 \section{Appendix 2: C Code}
 \subsection{EasySamIO.h}
-\subsection{MCP3002 Voltage Measurement}
-\subsection{BlueSMiRF UART Communication}
-	
+\pagebreak
+\subsection{lab6.c}
 \end{document}
