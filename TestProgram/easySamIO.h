@@ -1,6 +1,6 @@
 // cferrarin@g.hmc.edu
 // kpezeshki@g.hmc.edu
-// 11/30/2018
+// 11/26/2018
 
 // all page numbers reference the SAM4S Series Datasheet as of 11/26/2018
 
@@ -16,61 +16,14 @@
     We've implemented a bare minimum of configurability and functionality to support the labs, but each peripheral offers many more features that may prove useful in the final project.
 */
 
-/* Useful things from CMSIS files:
-
-/////////////////////////////////////////////////////////////////////
-// Device characteristics
-/////////////////////////////////////////////////////////////////////
-
-#define CHIP_FREQ_SLCK_RC_MIN           (20000UL)
-#define CHIP_FREQ_SLCK_RC               (32000UL)
-#define CHIP_FREQ_SLCK_RC_MAX           (44000UL)
-#define CHIP_FREQ_MAINCK_RC_4MHZ        (4000000UL)
-#define CHIP_FREQ_MAINCK_RC_8MHZ        (8000000UL)
-#define CHIP_FREQ_MAINCK_RC_12MHZ       (12000000UL)
-#define CHIP_FREQ_CPU_MAX               (64000000UL)
-#define CHIP_FREQ_XTAL_32K              (32768UL)
-#define CHIP_FREQ_XTAL_12M              (12000000UL)
-
-/////////////////////////////////////////////////////////////////////
-// Peripheral ID definitions
-/////////////////////////////////////////////////////////////////////
-
-#define ID_SUPC   ( 0) /**< \brief Supply Controller (SUPC) 
-#define ID_RSTC   ( 1) /**< \brief Reset Controller (RSTC) 
-#define ID_RTC    ( 2) /**< \brief Real Time Clock (RTC) 
-#define ID_RTT    ( 3) /**< \brief Real Time Timer (RTT) 
-#define ID_WDT    ( 4) /**< \brief Watchdog Timer (WDT) 
-#define ID_PMC    ( 5) /**< \brief Power Management Controller (PMC) 
-#define ID_EFC    ( 6) /**< \brief Enhanced Embedded Flash Controller (EFC) 
-#define ID_UART0  ( 8) /**< \brief UART 0 (UART0) 
-#define ID_UART1  ( 9) /**< \brief UART 1 (UART1) 
-#define ID_PIOA   (11) /**< \brief Parallel I/O Controller A (PIOA) 
-#define ID_PIOB   (12) /**< \brief Parallel I/O Controller B (PIOB) 
-#define ID_USART0 (14) /**< \brief USART 0 (USART0) 
-#define ID_USART1 (15) /**< \brief USART 1 (USART1) 
-#define ID_HSMCI  (18) /**< \brief Multimedia Card Interface (HSMCI) 
-#define ID_TWI0   (19) /**< \brief Two Wire Interface 0 (TWI0) 
-#define ID_TWI1   (20) /**< \brief Two Wire Interface 1 (TWI1) 
-#define ID_SPI    (21) /**< \brief Serial Peripheral Interface (SPI) 
-#define ID_SSC    (22) /**< \brief Synchronous Serial Controler (SSC) 
-#define ID_TC0    (23) /**< \brief Timer/Counter 0 (TC0) 
-#define ID_TC1    (24) /**< \brief Timer/Counter 1 (TC1) 
-#define ID_TC2    (25) /**< \brief Timer/Counter 2 (TC2) 
-#define ID_ADC    (29) /**< \brief Analog To Digital Converter (ADC) 
-#define ID_DACC   (30) /**< \brief Digital To Analog Converter (DACC) 
-#define ID_PWM    (31) /**< \brief Pulse Width Modulation (PWM) 
-#define ID_CRCCU  (32) /**< \brief CRC Calculation Unit (CRCCU) 
-#define ID_ACC    (33) /**< \brief Analog Comparator (ACC) 
-#define ID_UDP    (34) /**< \brief USB Device Port (UDP) 
-*/
-
 /* Development checklist:
  * PIO:   Add support for PIOB              DONE
  * PIO:   Final pass                        DONE
- * TIMER: Add support for TC1               IN PROGRESS
- * TIMER: Refine delays, add delay_us()     NOT STARTED
- * TIMER: Final pass                        NOT STARTED
+ * TIMER: Add support for TC1               DONE
+ * TIMER: Refine delays, add delay_us()     DONE
+ * TIMER: Final pass                        DONE
+ * PMC:   Add support for FPGA clock        NOT STARTED
+ * PMC:   Final pass                        NOT STARTED
  * SPI:   Fix "PCK" issue                   NOT STARTED
  * SPI:   Final pass                        NOT STARTED
  * UART:  Final pass                        NOT STARTED
@@ -86,13 +39,16 @@
 //Constants taken from ATSAM4S4B CMSIS Library
 //Relevant code is available at http://packs.download.atmel.com/
 
+#ifndef EASY_SAM_IO_H
+#define EASY_SAM_IO_H
+
+#include <stdint.h>
+
 /////////////////////////////////////////////////////////////////////
 // Constants
 /////////////////////////////////////////////////////////////////////
 
-#define MCK				4000000
-#define TIMER_CLOCK1	(MCK / 2)
-#define TIMER_CLOCK4	(MCK / 128)
+#define MCK        4000000
 
 /////////////////////////////////////////////////////////////////////
 // Base Address Definitions
@@ -100,6 +56,7 @@
 
 #define SPI        (0x40008000U) /**< \brief (SPI       ) Base Address */
 #define TC0        (0x40010000U) /**< \brief (TC0       ) Base Address */
+#define TC1        (0x40014000U) /**< \brief (TC1       ) Base Address */
 #define PWM        (0x40020000U) /**< \brief (PWM       ) Base Address */
 #define PMC        (0x400E0400U) /**< \brief (PMC       ) Base Address */
 #define UART0      (0x400E0600U) /**< \brief (UART0     ) Base Address */
@@ -136,8 +93,8 @@
 #define REG_PMC_PCDR1           (0x400E0504U) /**< \brief (PMC) Peripheral Clock Disable Register 1 */
 #define REG_PMC_PCSR1           (0x400E0508U) /**< \brief (PMC) Peripheral Clock Status Register 1 */
 #define REG_PMC_OCR             (0x400E0510U) /**< \brief (PMC) Oscillator Calibration Register */
- 
-  #define PMC_WPMR_WPKEY_PASSWD           (0x504D43u << 8) /**< \brief (PMC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
+
+#define PMC_WPMR_WPKEY_PASSWD           (0x504D43u << 8) /**< \brief (PMC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
 
 /////////////////////////////////////////////////////////////////////
@@ -221,7 +178,8 @@ typedef struct {
     uint32_t PIO_PUER;       /**< \brief (Pio Offset: 0x0064) Pull-up Enable Register */
     uint32_t PIO_PUSR;       /**< \brief (Pio Offset: 0x0068) Pad Pull-up Status Register */
     uint32_t Reserved5[1];
-    uint32_t PIO_ABCDSR[2];  /**< \brief (Pio Offset: 0x0070) Peripheral Select Register */
+    uint32_t PIO_ABCDSR1;  /**< \brief (Pio Offset: 0x0070) Peripheral Select Register 1 */
+    uint32_t PIO_ABCDSR2;  /**< \brief (Pio Offset: 0x0074) Peripheral Select Register 2 */
     uint32_t Reserved6[2];
     uint32_t PIO_IFSCDR;     /**< \brief (Pio Offset: 0x0080) Input Filter Slow Clock Disable Register */
     uint32_t PIO_IFSCER;     /**< \brief (Pio Offset: 0x0084) Input Filter Slow Clock Enable Register */
@@ -276,26 +234,81 @@ typedef struct {
 // TC (Timer Counter) Registers
 /////////////////////////////////////////////////////////////////////
 
-#define REG_TC0_CCR  (*(  volatile unsigned int *)0x40010000U) /**< \brief (TC0) Channel Control Register */
-#define REG_TC0_CMR  (*(  volatile unsigned int *)0x40010004U) /**< \brief (TC0) Channel Mode Register */
-#define REG_TC0_SMMR (*(  volatile unsigned int *)0x40010008U) /**< \brief (TC0) Stepper Motor Mode Register */
-#define REG_TC0_CV   (*(  volatile unsigned int *)0x40010010U) /**< \brief (TC0) Counter Value Register */
-#define REG_TC0_RA   (*(  volatile unsigned int *)0x40010014U) /**< \brief (TC0) Register A Register */
-#define REG_TC0_RB   (*(  volatile unsigned int *)0x40010018U) /**< \brief (TC0) Register B Register */
-#define REG_TC0_RC   (*(  volatile unsigned int *)0x4001001CU) /**< \brief (TC0) Register C Register */
-#define REG_TC0_SR   (*(  volatile unsigned int *)0x40010020U) /**< \brief (TC0) Status Register */
-#define REG_TC0_IER  (*(  volatile unsigned int *)0x40010024U) /**< \brief (TC0) Interrupt Enable Register */
-#define REG_TC0_IDR  (*(  volatile unsigned int *)0x40010028U) /**< \brief (TC0) Interrupt Disable Register */
-#define REG_TC0_IMR  (*(  volatile unsigned int *)0x4001002CU) /**< \brief (TC0) Interrupt Mask Register */
+typedef struct {
+    uint32_t CLKEN   : 1;
+    uint32_t CLKDIS  : 1;
+    uint32_t SWTRG   : 1;
+    uint32_t         : 29;
+} TC_CCR_bits;
 
-#define REG_TC_BCR   (*(  volatile unsigned int *)0x400100C0U) /**< \brief (TC) Block Control Register */
-#define REG_TC_BMR   (*(  volatile unsigned int *)0x400100C4U) /**< \brief (TC) Block Mode Register */
-#define REG_TC_QIER  (*(  volatile unsigned int *)0x400100C8U) /**< \brief (TC) QDEC Interrupt Enable Register */
-#define REG_TC_QIDR  (*(  volatile unsigned int *)0x400100CCU) /**< \brief (TC) QDEC Interrupt Disable Register */
-#define REG_TC_QIMR  (*(  volatile unsigned int *)0x400100D0U) /**< \brief (TC) QDEC Interrupt Mask Register */
-#define REG_TC_QISR  (*(  volatile unsigned int *)0x400100D4U) /**< \brief (TC) QDEC Interrupt Status Register */
-#define REG_TC_FMR   (*(  volatile unsigned int *)0x400100D8U) /**< \brief (TC) Fault Mode Register */
-#define REG_TC_WPMR  (*(  volatile unsigned int *)0x400100E4U) /**< \brief (TC) Write Protect Mode Register */
+typedef struct {
+    uint32_t TCCLKS  : 3;
+    uint32_t CLKI    : 1;
+    uint32_t BURST   : 2;
+    uint32_t CPCSTOP : 1;
+    uint32_t CPCDIS  : 1;
+    uint32_t EEVTEDG : 2;
+    uint32_t EEVT    : 2;
+    uint32_t ENETRG  : 1;
+    uint32_t WAVESEL : 2;
+    uint32_t WAVE    : 1;
+    uint32_t ACPA    : 2;
+    uint32_t ACPC    : 2;
+    uint32_t AEEVT   : 2;
+    uint32_t ASWTRG  : 2;
+    uint32_t BCPB    : 2;
+    uint32_t BCPC    : 2;
+    uint32_t BEEVT   : 2;
+    uint32_t BSWTRG  : 2;
+} TC_CMR_bits;
+
+typedef struct {
+    uint32_t COVFS   : 1;
+    uint32_t LOVRS   : 1;
+    uint32_t CPAS    : 1;
+    uint32_t CPBS    : 1;
+    uint32_t CPCS    : 1;
+    uint32_t LDRAS   : 1;
+    uint32_t LDRBS   : 1;
+    uint32_t ETRGS   : 1;
+    uint32_t         : 8;
+    uint32_t CLKSTA  : 1;
+    uint32_t MTIOA   : 1;
+    uint32_t MTIOB   : 1;
+    uint32_t         : 13;
+} TC_SR_bits;
+
+/** \brief TcChannel hardware registers */
+typedef struct {
+    TC_CCR_bits TC_CCR;        /**< \brief (TcChannel Offset: 0x0) Channel Control Register */
+    TC_CMR_bits TC_CMR;        /**< \brief (TcChannel Offset: 0x4) Channel Mode Register */
+    uint32_t    TC_SMMR;       /**< \brief (TcChannel Offset: 0x8) Stepper Motor Mode Register */
+    uint32_t    Reserved1[1];
+    uint32_t    TC_CV;         /**< \brief (TcChannel Offset: 0x10) Counter Value */
+    uint32_t    TC_RA;         /**< \brief (TcChannel Offset: 0x14) Register A */
+    uint32_t    TC_RB;         /**< \brief (TcChannel Offset: 0x18) Register B */
+    uint32_t    TC_RC;         /**< \brief (TcChannel Offset: 0x1C) Register C */
+    TC_SR_bits  TC_SR;         /**< \brief (TcChannel Offset: 0x20) Status Register */
+    uint32_t    TC_IER;        /**< \brief (TcChannel Offset: 0x24) Interrupt Enable Register */
+    uint32_t    TC_IDR;        /**< \brief (TcChannel Offset: 0x28) Interrupt Disable Register */
+    uint32_t    TC_IMR;        /**< \brief (TcChannel Offset: 0x2C) Interrupt Mask Register */
+    uint32_t    Reserved2[4];
+} TcChannel;
+
+/** \brief Tc hardware registers */
+#define TCCHANNEL_NUMBER 3
+typedef struct {
+    TcChannel  TC_CHANNEL[TCCHANNEL_NUMBER]; /**< \brief (Tc Offset: 0x0) channel = 0 .. 2 */
+    uint32_t TC_BCR;        /**< \brief (Tc Offset: 0xC0) Block Control Register */
+    uint32_t TC_BMR;        /**< \brief (Tc Offset: 0xC4) Block Mode Register */
+    uint32_t TC_QIER;       /**< \brief (Tc Offset: 0xC8) QDEC Interrupt Enable Register */
+    uint32_t TC_QIDR;       /**< \brief (Tc Offset: 0xCC) QDEC Interrupt Disable Register */
+    uint32_t TC_QIMR;       /**< \brief (Tc Offset: 0xD0) QDEC Interrupt Mask Register */
+    uint32_t TC_QISR;       /**< \brief (Tc Offset: 0xD4) QDEC Interrupt Status Register */
+    uint32_t TC_FMR;        /**< \brief (Tc Offset: 0xD8) Fault Mode Register */
+    uint32_t Reserved1[2];
+    uint32_t TC_WPMR;       /**< \brief (Tc Offset: 0xE4) Write Protect Mode Register */
+} Tc;
 
 #define TC_WPMR_WPKEY_PASSWD (0x54494Du << 8) /**< \brief (TC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
@@ -339,38 +352,13 @@ typedef struct {
 #define REG_UART_BRGR (*(  volatile unsigned int *)0x400E0620U) /**< \brief (UART) Baud Rate Generator Register */
 
 
-void samInit() {
-    //Many peripherals on the SAM4S are write protected: unless the correct password is written in a peripheral memory address, write access to peripheral control registers is disabled. This is done for security reasons, but is not necessary in this header file. In the first part of this function, we enable write access to the PMC, PIO, SPI, and UART by writing a password into the peripheral's Write Protect Mode Register (WPMR)
-
-
-	//disabling PMC write protection (Password: "PMC")
-    REG_PMC_WPMR = PMC_WPMR_WPKEY_PASSWD;
-	//disabling PIO write protection (Password: "PIO")
-    REG_PIOA_WPMR = PIO_WPMR_WPKEY_PASSWD;
-	//disabling SPI write protection (Password: "SPI")
-    REG_SPI_WPMR = SPI_WPMR_WPKEY_PASSWD;
-	//There is no UART write protection
-
-	//disabling timer write protection (Password: "TIM")
-    REG_TC_WPMR = TC_WPMR_WPKEY_PASSWD;
-
-    //We next need to supply a clock to these peripherals. For a given peripheral, clock is enabled by writing a 1 into a specific bit of the PMC Peripheral Clock Enable Register (PCER). There are two registers for the 34 peripherals. Peripheral - bit number mapping is given in p36: Peripheral Identifiers.
-
-    //Activating clocks for UART 0 (PID 8), PIO A (PID 11), SPI (PID 21), TC0 (Timer/Counter CH0) (PID 23)
-
-	REG_PMC_PCER0 |= (1<<8);
-	REG_PMC_PCER0 |= (1<<11);
-	REG_PMC_PCER0 |= (1<<21);
-	REG_PMC_PCER0 |= (1<<23);
-}
-
 
 /////////////////////////////////////////////////////////////////////
 // PIO Functions
 /////////////////////////////////////////////////////////////////////
 
 #define LOW         0 // Value to write a pin low (0 V)
-#define HIGH        1 // Value ot write a pin high (3.3 V)
+#define HIGH        1 // Value to write a pin high (3.3 V)
 
 #define PORT_ID_A   0 // Arbitrary ID for PIO Port A
 #define PORT_ID_B   1 // Arbitrary ID for PIO Port B
@@ -390,73 +378,72 @@ int pinToPort(int pin) {
 }
 
 // Returns a pointer to a Pio-sized chunk of memory at a given port's base address
-Pio* portToBase(int port) {
-    uint32_t base = port ? PORTB : PORTA;
-    return (Pio*) (uintptr_t) base; // Might be <return (Pio*) (uintptr_t) base;>
+uint32_t portToBase(int port) {
+    return (uint32_t) (port ? PIOB : PIOA);
 }
 
 // Given a pin, returns the corresponding port's base address
-Pio* pinToBase(int pin) {
+uint32_t pinToBase(int pin) {
     return portToBase(pinToPort(pin));
 }
 
 // Note: Upon reset, pins are configured as input I/O lines (as opposed to being
-// controlled by peripheral funcitons), the peripheral function defaults to PERIPH_A,
+// controlled by peripheral functions), the peripheral function defaults to PERIPH_A,
 // the pull-up resistor is enabled, and the pull-down resistor is disabled. All other
 // optional pin functions, which are not provided in this header file, are off upon reset.
 void pinMode(int pin, int function) {
-    Pio* base = pinToBase(pin);
+    Pio* port = (Pio*) pinToBase(pin);
     int offset = pin % 32;
 
     switch (function) {
         case INPUT:
             break;
         case OUTPUT:
-            base->PIO_OER     |=  (1 << offset); // Configures an I/O line as an output
+            port->PIO_OER     |=  (1 << offset); // Configures an I/O line as an output
             break;
         case PERIPH_A:
-            base->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
-            base->PIO_ABCDSR1 &= ~(1 << offset); // Sets the peripheral which controls a pin
-            base->PIO_ABCDSR2 &= ~(1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
+            port->PIO_ABCDSR1 &= ~(1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_ABCDSR2 &= ~(1 << offset); // Sets the peripheral which controls a pin
             break;
         case PERIPH_B:
-            base->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
-            base->PIO_ABCDSR1 |=  (1 << offset); // Sets the peripheral which controls a pin
-            base->PIO_ABCDSR2 &= ~(1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
+            port->PIO_ABCDSR1 |=  (1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_ABCDSR2 &= ~(1 << offset); // Sets the peripheral which controls a pin
             break;
         case PERIPH_C:
-            base->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
-            base->PIO_ABCDSR1 &= ~(1 << offset); // Sets the peripheral which controls a pin
-            base->PIO_ABCDSR2 |=  (1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
+            port->PIO_ABCDSR1 &= ~(1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_ABCDSR2 |=  (1 << offset); // Sets the peripheral which controls a pin
             break;
         case PERIPH_D:
-            base->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
-            base->PIO_ABCDSR1 |=  (1 << offset); // Sets the peripheral which controls a pin
-            base->PIO_ABCDSR2 |=  (1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_PDR     |=  (1 << offset); // Sets a pin to be peripheral-controlled
+            port->PIO_ABCDSR1 |=  (1 << offset); // Sets the peripheral which controls a pin
+            port->PIO_ABCDSR2 |=  (1 << offset); // Sets the peripheral which controls a pin
             break;
         case PULL_DOWN:
-            base->PIO_PUDR    |=  (1 << offset); // Disables the pull-up resistor
-            base->PIO_PPDER   |=  (1 << offset); // Enables the pull-down resistor
+            port->PIO_PUDR    |=  (1 << offset); // Disables the pull-up resistor
+            port->PIO_PPDER   |=  (1 << offset); // Enables the pull-down resistor
         case FLOATING:
-            base->PIO_PUDR    |=  (1 << offset); // Disables the pull-down resistor
+            port->PIO_PUDR    |=  (1 << offset); // Disables the pull-down resistor
     }
 }
 
 // Reads the digital voltage on a pin configured as an input I/O line
 int digitalRead(int pin) {
-    Pio* base = pinToBase(pin);
+    Pio* port = (Pio*) pinToBase(pin);
     int offset = pin % 32;
-    return ((base->PIO_PDSR) >> offset) & 1;
+    return ((port->PIO_PDSR) >> offset) & 1;
 }
 
 // Writes a digital voltage to a pin configured as an output I/O line
 void digitalWrite(int pin, int val) {
-    Pio* base = pinToBase(pin);
+    Pio* port = (Pio*) pinToBase(pin);
     int offset = pin % 32;
     if (val) {
-        base->PIO_SODR |= (1 << offset);
+        port->PIO_SODR |= (1 << offset);
     } else {
-        base->PIO_CODR |= (1 << offset);
+        port->PIO_CODR |= (1 << offset);
     }
 }
 
@@ -465,6 +452,118 @@ void toggle(int pin) {
     int currentVal = digitalRead(pin);
     digitalWrite(pin, !currentVal);
 }
+
+
+/////////////////////////////////////////////////////////////////////
+// TC Functions
+/////////////////////////////////////////////////////////////////////
+
+#define TIMER_CLOCK1_SPEED (MCK / 2)
+#define TIMER_CLOCK2_SPEED (MCK / 8)
+#define TIMER_CLOCK3_SPEED (MCK / 32)
+#define TIMER_CLOCK4_SPEED (MCK / 128)
+#define TIMER_CLOCK5_SPEED (MCK) // Change this
+
+#define TIMER_CLOCK1_ID    0
+#define TIMER_CLOCK2_ID    1
+#define TIMER_CLOCK3_ID    2
+#define TIMER_CLOCK4_ID    3
+#define TIMER_CLOCK5_ID    4
+
+#define TC_BLOCK0_ID       0
+#define TC_BLOCK1_ID       1
+
+#define TC_CH0_ID          0
+#define TC_CH1_ID          1
+#define TC_CH2_ID          2
+#define TC_CH3_ID          3
+#define TC_CH4_ID          4
+#define TC_CH5_ID          5
+
+#define TC_CHANNEL_OFFSET  (0x40U)
+
+#define UP                 0
+#define UPDOWN             1
+#define UP_RC              2
+#define UPDOWN_RC          3
+
+
+// Returns the TC block ID that corresponds to a given channel
+int channelToBlock(int channelID) {
+    return channelID / 3;
+}
+
+// Returns a pointer to a Tc-sized chunk of memory at a given block's base address
+uint32_t blockToBlockBase(int block) {
+    uint32_t base = block ? TC1 : TC0;
+}
+
+uint32_t channelToBlockBase(int channelID) {
+    return blockToBlockBase(channelToBlock(channelID));
+}
+
+uint32_t channelToChannelBase(int channelID) {
+    uint32_t base = channelToBlockBase(channelID);
+    uint32_t offset = (channelID % 3) * TC_CHANNEL_OFFSET;
+    return base + offset;
+}
+
+void channelInit(int channelID, int clock, int mode) {
+    TcChannel* channel = (TcChannel*) channelToChannelBase(channelID);
+    channel->TC_CCR.CLKEN   = 1;     // Enable clock
+    channel->TC_CMR.TCCLKS  = clock; // Set clock to desired clock
+    channel->TC_CMR.WAVE    = 1;     // Waveform mode
+    channel->TC_CMR.WAVESEL = mode;  // Set counting mdoe to desired mode
+}
+
+uint32_t readChannel(int channelID) {
+    TcChannel* channel = (TcChannel*) channelToChannelBase(channelID);
+    return channel->TC_CV;
+}
+
+void resetChannel(int channelID) {
+    TcChannel* channel = (TcChannel*) channelToChannelBase(channelID);
+    channel->TC_CCR.SWTRG = 1;
+}
+
+void setRC_compare(int channelID, uint32_t val) {
+    TcChannel* channel = (TcChannel*) channelToChannelBase(channelID);
+    channel->TC_RC = val;
+}
+
+int checkRC_Compare(int channelID) {
+    TcChannel* channel = (TcChannel*) channelToChannelBase(channelID);
+    return channel->TC_SR.CPCS;
+}
+
+// Configure TC Channel 0 to perform delays
+void delayInit() {
+    channelInit(TC_CH0_ID, TIMER_CLOCK1_ID, UP_RC);
+}
+
+// Works up to (2^15 - 1 = 32767) us
+// TIMER_CLOCK1 has a resolution of 0.5 us
+void delayMicros(uint32_t duration) {
+    TcChannel* channel = (TcChannel*) channelToChannelBase(TC_CH0_ID);
+    channel->TC_CCR.SWTRG = 1; // Reset counter
+    channel->TC_RC = duration * (TIMER_CLOCK1_SPEED / 1e6); // Set compare value
+    while(!(channel->TC_SR.CPCS)); // Wait until an RC Compare has occurred
+}
+
+// Uses delayMicros(), at Prof. Harris's request
+void delayMillis(int duration) {
+    for (int i = 0; i < duration; i++) {
+        delayMicros(1000);
+    }
+}
+
+// Uses Millis(), at Prof. Harris's request
+void delaySeconds(int duration) {
+    for (int i = 0; i < duration; i++) {
+        delayMillis(1000);
+    }
+}
+
 
 /*----------------------------
 --------SPI METHODS-------------
@@ -488,10 +587,10 @@ void spiInit(char clkdivide, int cpol, int ncpha) {
     */
 
    //Initially assigning SPI pins (PA11-PA14) to peripheral A (SPI). Pin mapping given in p38-p39
-    pinMode(11, A);
-    pinMode(12, A);
-    pinMode(13, A);
-    pinMode(14, A);
+    pinMode(11, PERIPH_A);
+    pinMode(12, PERIPH_A);
+    pinMode(13, PERIPH_A);
+    pinMode(14, PERIPH_A);
 
     //next setting the SPI control register (p600). Set to 1 to enable SPI
     REG_SPI_CR = 1;
@@ -532,29 +631,6 @@ short spiSendReceive16(short send) {
 
 
 /*----------------------------
---------TIMER METHODS-------------
-----------------------------*/
-
-void timerInit() {
-	// Enable clock to channel
-	REG_TC0_CCR	   &= ~(1 << 1);
-    REG_TC0_CCR	   |= 1;
-	
-	REG_TC0_CMR    |= (1 << 15); // WAVE = 1 (waveform mode)
-	REG_TC0_CMR	   |= (1 << 14); // WAVESEL = 2 (UP_RC waveform)
-}
-
-// Works until 2097 ms
-// Resolution of 32 us
-void delay_ms(int num) {
-	REG_TC0_CMR |= 0x3; //0b11; // Using TIMER_CLOCK4
-	REG_TC0_RC   = (unsigned long) (TIMER_CLOCK4 * (((float) num) / 1000)); // Compare value
-	REG_TC0_CCR |= (1 << 2); // Reset counter
-	while (!((REG_TC0_SR >> 4) & 1)); // Delay until match
-}
-
-
-/*----------------------------
 --------UART METHODS-------------
 ----------------------------*/
 
@@ -569,8 +645,8 @@ void delay_ms(int num) {
  * Baud Rate =  MCK/(16*CD), CD is an unsigned short
  */	
 void uartInit(int parity, int CD) {
-	pinMode(9, A);		  // Set URXD0 pin mode
-	pinMode(10, A);		  // Set ITXD0 pin mode
+	pinMode(9, PERIPH_A);		  // Set URXD0 pin mode
+	pinMode(10, PERIPH_A);		  // Set ITXD0 pin mode
 
 	REG_UART_CR   |= 1 << 6; // Enable transmitter
 	REG_UART_CR   |= 1 << 4; // Enable receiver
@@ -595,6 +671,39 @@ char uartRx() {
 	while(!((REG_UART_SR) & 1)); // Wait until data has been received
 	return (char) REG_UART_RHR; // Return received data in holding register
 	
+}
+
+/////////////////////////////////////////////////////////////////////
+// General Functions
+/////////////////////////////////////////////////////////////////////
+void samInit() {
+    //Many peripherals on the SAM4S are write protected: unless the correct password is written in a peripheral memory address, write access to peripheral control registers is disabled. This is done for security reasons, but is not necessary in this header file. In the first part of this function, we enable write access to the PMC, PIO, SPI, and UART by writing a password into the peripheral's Write Protect Mode Register (WPMR)
+
+	//disabling PMC write protection (Password: "PMC")
+    *((uint32_t *) REG_PMC_WPMR) = PMC_WPMR_WPKEY_PASSWD;
+	//disabling PIO write protection (Password: "PIO")
+    Pio* pioBaseA = (Pio*) PIOA;
+    Pio* pioBaseB = (Pio*) PIOB;
+    pioBaseA->PIO_WPMR = PIO_WPMR_WPKEY_PASSWD;
+    pioBaseB->PIO_WPMR = PIO_WPMR_WPKEY_PASSWD;
+	//disabling SPI write protection (Password: "SPI")
+    *((uint32_t *) REG_SPI_WPMR) = SPI_WPMR_WPKEY_PASSWD;
+	//There is no UART write protection
+
+	//disabling timer write protection (Password: "TIM")
+    Tc* tcBase0 = (Tc*) TC0;
+    Tc* tcBase1 = (Tc*) TC1;
+    tcBase0->TC_WPMR = TC_WPMR_WPKEY_PASSWD;
+    tcBase1->TC_WPMR = TC_WPMR_WPKEY_PASSWD;
+
+    //We next need to supply a clock to these peripherals. For a given peripheral, clock is enabled by writing a 1 into a specific bit of the PMC Peripheral Clock Enable Register (PCER). There are two registers for the 34 peripherals. Peripheral - bit number mapping is given in p36: Peripheral Identifiers.
+
+    //Activating clocks for UART 0 (PID 8), PIO A (PID 11), SPI (PID 21), TC0 (Timer/Counter CH0) (PID 23)
+
+	*((uint32_t *) REG_PMC_PCER0) |= (1<<8);
+	*((uint32_t *) REG_PMC_PCER0) |= (1<<11);
+	*((uint32_t *) REG_PMC_PCER0) |= (1<<21);
+	*((uint32_t *) REG_PMC_PCER0) |= (1<<23);
 }
 
 #endif
