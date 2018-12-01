@@ -1,0 +1,18 @@
+Redo bit numbering with structs (see easypio.h)
+Remove some of the GPIO stuff in assigning a pin state
+Implement delayus?
+	read us in first line of function call
+	Calculate what result should be
+	Use while loop to wait until result
+	Error of one part in 1000
+Take to simplest possible
+Design review Tuesday 8:10
+Move to onboard ADC
+
+
+ADC
+PCK
+More Channels timer
+PIOB
+PWM
+
