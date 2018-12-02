@@ -26,7 +26,7 @@
                              ".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;",
                              "text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}",
                              ".button2 {background-color: #77878A;}</style></head>",
-                             "<body><h1>ESP8266 Web Server</h1>",
+                             "<body><h1>E155 Lab6: ESP8266 SPI Slave</h1>",
                              //button will be displayed here
                              "</body></html>",
                              ""
