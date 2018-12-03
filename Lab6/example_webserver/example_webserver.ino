@@ -2,13 +2,16 @@
  * Kaveh Pezeshki and Christopher Ferrarin
  * E155 Lab 6
  * 
- * Displays a 5-char string sent over SPI on a webpage, serving as an SPI slave
- * Returns a 1 or 0 in the all SPI transactions, representing the state of a toggle on the webpage
+ * Displays a voltage string sent over UART, printing the button state whenever it is updated
  * Much of the basic ESP8266 code adapted from: https://randomnerdtutorials.com/esp8266-web-server/
+ * RX = D2
+ * TX = D3
  */
 
  //Loading the ESP8266 library
  #include <ESP8266WiFi.h>
+ #include <SPISlave.h>
+ #include <SoftwareSerial.h> 
 
  //defining response and webpage for client
  const char* response[] = { 
@@ -43,10 +46,15 @@
  WiFiServer server(80);
  String request; //storing HTTP request
  String currentLine; //storing incoming data from the client 
- int    buttonState = 0;   //the data to return in an SPI transaction
+ int    buttonState = 0;   //the data to return in an SPI transaction, current state of webpage button
+ String voltage; //the voltage data sent from the SPI master
+
+ //Defining the softwareSerial implementation
+ SoftwareSerial NodeMCU(2, 3);
 
  void setup() {
   Serial.begin(9600); //keeping a serial connection open for debugging
+  Serial.setDebugOutput(true);
   Serial.println("Connecting to Network");
   WiFi.begin(networkName, password);
   //waiting until connection to network complete
@@ -60,15 +68,67 @@
   //Starting server
   Serial.println("Starting server");
   server.begin();
+  //Starting a software serial connection
+  NodeMCU.begin(9600);
+   
+  /*
+  SPISlave.onData([](uint8_t * data, size_t len) {
+    String message = String((char *)data);
+    (void) len;
+    Serial.print("Received data from master: ");
+    Serial.println(message);
+    voltage = message;
+    SPISlave.setData(buttonState);
+  });
 
+  // The master has read out outgoing data buffer
+  // that buffer can be set with SPISlave.setData
+  SPISlave.onDataSent([]() {
+    Serial.println("Answer Sent");
+  });
+
+  // status has been received from the master.
+  // The status register is a special register that bot the slave and the master can write to and read from.
+  // Can be used to exchange small data or status information
+  SPISlave.onStatus([](uint32_t data) {
+    Serial.printf("Status: %u\n", data);
+    SPISlave.setStatus(millis()); //set next status
+  });
+
+  // The master has read the status register
+  SPISlave.onStatusSent([]() {
+    Serial.println("Status Sent");
+  });
+
+  // Setup SPI Slave registers and pins
+  SPISlave.begin();
+  
+  // Sets the data registers. Limited to 32 bytes at a time.
+  // SPISlave.setData(uint8_t * data, size_t len); is also available with the same limitation
+  SPISlave.setData(buttonState); */
+  
 }
 
+
+
 void loop() {
+  //updating buttonState
+  while(NodeMCU.available()) {
+    char character = NodeMCU.read();
+    Serial.print("received from UART: ");
+    Serial.println(character);
+    if (character == '/') {voltage = "";}
+    else voltage.concat(character);
+  }
+  
   //Listening for new connections
   WiFiClient webClient = server.available();
   //Passing the webpage if a new client connects
   if (webClient) {
     Serial.println("Client connected");
+    Serial.println("Button State");
+    Serial.print(buttonState);
+    NodeMCU.print(buttonState);
     currentLine = "";
     while (webClient.connected()) {
       if (webClient.available()) { //if there are bytes to read from the client
@@ -86,9 +146,11 @@ void loop() {
             }
             if (request.indexOf("GET /1/on") >= 0) {
               buttonState = 1;
+              NodeMCU.print(1);
             }
             if (request.indexOf("GET /1/off") >= 0) {
               buttonState = 0;
+              NodeMCU.print(0);
             }
             //displaying the webpage
             Serial.println("transmitting webpage...");
@@ -96,6 +158,9 @@ void loop() {
               webClient.println(webpage[i]);
               Serial.println(webpage[i]);
             }
+            //displaying SPI input data
+            webClient.println("<p>Voltage: " + voltage + "</p>");
+            Serial.println("<p>Voltage: " + voltage + "</p>");
             //displaying the button
             if (buttonState==0) {
               webClient.println("<p><a href=\"/1/on\"><button class=\"button\">ON</button></a></p>");
