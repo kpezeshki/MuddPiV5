@@ -339,8 +339,8 @@ void spiInit(char clkdivide, int cpol, int ncpha) {
     //next setting the chip select register for peripheral 0 (p610)
     //ignoring delays
 		
-    //REG_SPI_CSR = (cpol<<0) | (ncpha<<1) | (clkdivide << 16);
-		REG_SPI_CSR = 0x0000FF00;
+    REG_SPI_CSR = (cpol<<0) | (ncpha<<1) | (clkdivide << 16);
+//		REG_SPI_CSR = 0x0000FF00;
 }
 
 char spiSendReceive(char send) {
