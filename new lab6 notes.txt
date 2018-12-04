@@ -1,0 +1,18 @@
+SPI sensor
+ADC 
+
+Give student:
+
+Code to read real time clock or some other peripheral:
+	Display on webpage
+	Toggle LED button on webpage (connected to SAM)
+	Every n seconds webpage reloads
+	On webpage reload queries SAM for updated data 
+	Board runs same black box code as student expects
+
+Student has to:
+	Implement ADC and SPI
+	Reading photodiode from ADC
+	Talking to some sensor over SPI
+	Display data on webpage
+	Toggle two LEDs
