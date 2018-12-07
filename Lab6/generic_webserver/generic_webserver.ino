@@ -31,7 +31,7 @@
 #define HTML_END   "</html>"
 
 //Defining network information
-const char* networkName = "CINE";
+const char* networkName = "CINE"; //set this to the selected network SSID
 const char* password    = NULL;   //set this to a non-null value if selected network requires authentication
 String      ip;                   //stores the current IP. Set in the setup function
 
