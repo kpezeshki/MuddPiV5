@@ -30,7 +30,7 @@
  * UART:  Bit field pass                    DONE
  * PWM:   Add base support                  NOT STARTED
  * PWM:   Test                              NOT STARTED
- * PWM:   Bit field pass                    NOT STARTED
+ * PWM:   Bit field pass                    DONE
  * ADC:   Add base support                  NOT STARTED
  * ADC:   Test                              NOT STARTED
  * ADC:   Bit field pass                    NOT STARTED
@@ -232,53 +232,53 @@ typedef struct {
 #define PIOA_REGS ((Pio*) PIOA)
 #define PIOB_REGS ((Pio*) PIOB)
 
-#define PA0     0
-#define PA1     1
-#define PA2     2
-#define PA3     3
-#define PA4     4
-#define PA5     5
-#define PA6     6
-#define PA7     7
-#define PA8     8
-#define PA9     9
-#define PA10    10
-#define PA11    11
-#define PA12    12
-#define PA13    13
-#define PA14    14
-#define PA15    15
-#define PA16    16
-#define PA17    17
-#define PA18    18
-#define PA19    19
-#define PA20    20
-#define PA21    21
-#define PA22    22
-#define PA23    23
-#define PA24    24
-#define PA25    25
-#define PA26    26
-#define PA27    27
-#define PA28    28
-#define PA29    29
-#define PA30    30
-#define PA31    31
-#define PB0     32
-#define PB1     33
-#define PB2     34
-#define PB3     35
-#define PB4     36
-#define PB5     37
-#define PB6     38
-#define PB7     39
-#define PB8     40
-#define PB9     41
-#define PB10    42
-#define PB11    43
-#define PB12    44
-#define PB13    45
-#define PB14    46
+#define PA0  0
+#define PA1  1
+#define PA2  2
+#define PA3  3
+#define PA4  4
+#define PA5  5
+#define PA6  6
+#define PA7  7
+#define PA8  8
+#define PA9  9
+#define PA10 10
+#define PA11 11
+#define PA12 12
+#define PA13 13
+#define PA14 14
+#define PA15 15
+#define PA16 16
+#define PA17 17
+#define PA18 18
+#define PA19 19
+#define PA20 20
+#define PA21 21
+#define PA22 22
+#define PA23 23
+#define PA24 24
+#define PA25 25
+#define PA26 26
+#define PA27 27
+#define PA28 28
+#define PA29 29
+#define PA30 30
+#define PA31 31
+#define PB0  32
+#define PB1  33
+#define PB2  34
+#define PB3  35
+#define PB4  36
+#define PB5  37
+#define PB6  38
+#define PB7  39
+#define PB8  40
+#define PB9  41
+#define PB10 42
+#define PB11 43
+#define PB12 44
+#define PB13 45
+#define PB14 46
 
 #define PIO_WPMR_WPKEY_PASSWD (0x50494Fu << 8) /**< \brief (PIO_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
@@ -542,6 +542,190 @@ typedef struct {
 } Uart;
 
 #define UART_REGS ((Uart*) UART0)
+
+
+/////////////////////////////////////////////////////////////////////
+// PWM (Pulse Width Modulation) Registers
+/////////////////////////////////////////////////////////////////////
+
+/** \brief PwmCh_num hardware registers */
+typedef struct {
+    volatile uint32_t PWM_CMR;       /**< \brief (PwmCh_num Offset: 0x0) PWM Channel Mode Register */
+    volatile uint32_t PWM_CDTY;      /**< \brief (PwmCh_num Offset: 0x4) PWM Channel Duty Cycle Register */
+    volatile uint32_t PWM_CDTYUPD;   /**< \brief (PwmCh_num Offset: 0x8) PWM Channel Duty Cycle Update Register */
+    volatile uint32_t PWM_CPRD;      /**< \brief (PwmCh_num Offset: 0xC) PWM Channel Period Register */
+    volatile uint32_t PWM_CPRDUPD;   /**< \brief (PwmCh_num Offset: 0x10) PWM Channel Period Update Register */
+    volatile uint32_t PWM_CCNT;      /**< \brief (PwmCh_num Offset: 0x14) PWM Channel Counter Register */
+    volatile uint32_t PWM_DT;        /**< \brief (PwmCh_num Offset: 0x18) PWM Channel Dead Time Register */
+    volatile uint32_t PWM_DTUPD;     /**< \brief (PwmCh_num Offset: 0x1C) PWM Channel Dead Time Update Register */
+} PwmCh_num;
+
+/** \brief PwmCmp hardware registers */
+typedef struct {
+    volatile uint32_t PWM_CMPV;      /**< \brief (PwmCmp Offset: 0x0) PWM Comparison 0 Value Register */
+    volatile uint32_t PWM_CMPVUPD;   /**< \brief (PwmCmp Offset: 0x4) PWM Comparison 0 Value Update Register */
+    volatile uint32_t PWM_CMPM;      /**< \brief (PwmCmp Offset: 0x8) PWM Comparison 0 Mode Register */
+    volatile uint32_t PWM_CMPMUPD;   /**< \brief (PwmCmp Offset: 0xC) PWM Comparison 0 Mode Update Register */
+} PwmCmp;
+
+/** \brief Pwm hardware registers */
+#define PWMCMP_NUMBER 8
+#define PWMCH_NUM_NUMBER 4
+typedef struct {
+    volatile uint32_t   PWM_CLK;       /**< \brief (Pwm Offset: 0x00) PWM Clock Register */
+    volatile uint32_t   PWM_ENA;       /**< \brief (Pwm Offset: 0x04) PWM Enable Register */
+    volatile uint32_t   PWM_DIS;       /**< \brief (Pwm Offset: 0x08) PWM Disable Register */
+    volatile uint32_t   PWM_SR;        /**< \brief (Pwm Offset: 0x0C) PWM Status Register */
+    volatile uint32_t   PWM_IER1;      /**< \brief (Pwm Offset: 0x10) PWM Interrupt Enable Register 1 */
+    volatile uint32_t   PWM_IDR1;      /**< \brief (Pwm Offset: 0x14) PWM Interrupt Disable Register 1 */
+    volatile uint32_t   PWM_IMR1;      /**< \brief (Pwm Offset: 0x18) PWM Interrupt Mask Register 1 */
+    volatile uint32_t   PWM_ISR1;      /**< \brief (Pwm Offset: 0x1C) PWM Interrupt Status Register 1 */
+    volatile uint32_t   PWM_SCM;       /**< \brief (Pwm Offset: 0x20) PWM Sync Channels Mode Register */
+    volatile uint32_t   Reserved1[1];
+    volatile uint32_t   PWM_SCUC;      /**< \brief (Pwm Offset: 0x28) PWM Sync Channels Update Control Register */
+    volatile uint32_t   PWM_SCUP;      /**< \brief (Pwm Offset: 0x2C) PWM Sync Channels Update Period Register */
+    volatile uint32_t   PWM_SCUPUPD;   /**< \brief (Pwm Offset: 0x30) PWM Sync Channels Update Period Update Register */
+    volatile uint32_t   PWM_IER2;      /**< \brief (Pwm Offset: 0x34) PWM Interrupt Enable Register 2 */
+    volatile uint32_t   PWM_IDR2;      /**< \brief (Pwm Offset: 0x38) PWM Interrupt Disable Register 2 */
+    volatile uint32_t   PWM_IMR2;      /**< \brief (Pwm Offset: 0x3C) PWM Interrupt Mask Register 2 */
+    volatile uint32_t   PWM_ISR2;      /**< \brief (Pwm Offset: 0x40) PWM Interrupt Status Register 2 */
+    volatile uint32_t   PWM_OOV;       /**< \brief (Pwm Offset: 0x44) PWM Output Override Value Register */
+    volatile uint32_t   PWM_OS;        /**< \brief (Pwm Offset: 0x48) PWM Output Selection Register */
+    volatile uint32_t   PWM_OSS;       /**< \brief (Pwm Offset: 0x4C) PWM Output Selection Set Register */
+    volatile uint32_t   PWM_OSC;       /**< \brief (Pwm Offset: 0x50) PWM Output Selection Clear Register */
+    volatile uint32_t   PWM_OSSUPD;    /**< \brief (Pwm Offset: 0x54) PWM Output Selection Set Update Register */
+    volatile uint32_t   PWM_OSCUPD;    /**< \brief (Pwm Offset: 0x58) PWM Output Selection Clear Update Register */
+    volatile uint32_t   PWM_FMR;       /**< \brief (Pwm Offset: 0x5C) PWM Fault Mode Register */
+    volatile uint32_t   PWM_FSR;       /**< \brief (Pwm Offset: 0x60) PWM Fault Status Register */
+    volatile uint32_t   PWM_FCR;       /**< \brief (Pwm Offset: 0x64) PWM Fault Clear Register */
+    volatile uint32_t   PWM_FPV;       /**< \brief (Pwm Offset: 0x68) PWM Fault Protection Value Register */
+    volatile uint32_t   PWM_FPE;       /**< \brief (Pwm Offset: 0x6C) PWM Fault Protection Enable Register */
+    volatile uint32_t   Reserved2[3];
+    volatile uint32_t   PWM_ELMR[2];   /**< \brief (Pwm Offset: 0x7C) PWM Event Line 0 Mode Register */
+    volatile uint32_t   Reserved3[11];
+    volatile uint32_t   PWM_SMMR;      /**< \brief (Pwm Offset: 0xB0) PWM Stepper Motor Mode Register */
+    volatile uint32_t   Reserved4[12];
+    volatile uint32_t   PWM_WPCR;      /**< \brief (Pwm Offset: 0xE4) PWM Write Protect Control Register */
+    volatile uint32_t   PWM_WPSR;      /**< \brief (Pwm Offset: 0xE8) PWM Write Protect Status Register */
+    volatile uint32_t   Reserved5[7];
+    volatile uint32_t   PWM_TPR;       /**< \brief (Pwm Offset: 0x108) Transmit Pointer Register */
+    volatile uint32_t   PWM_TCR;       /**< \brief (Pwm Offset: 0x10C) Transmit Counter Register */
+    volatile uint32_t   Reserved6[2];
+    volatile uint32_t   PWM_TNPR;      /**< \brief (Pwm Offset: 0x118) Transmit Next Pointer Register */
+    volatile uint32_t   PWM_TNCR;      /**< \brief (Pwm Offset: 0x11C) Transmit Next Counter Register */
+    volatile uint32_t   PWM_PTCR;      /**< \brief (Pwm Offset: 0x120) Transfer Control Register */
+    volatile uint32_t   PWM_PTSR;      /**< \brief (Pwm Offset: 0x124) Transfer Status Register */
+    volatile uint32_t   Reserved7[2];
+    volatile PwmCmp     PWM_CMP[PWMCMP_NUMBER]; /**< \brief (Pwm Offset: 0x130) 0 .. 7 */
+    volatile uint32_t   Reserved8[20];
+    volatile PwmCh_num  PWM_CH_NUM[PWMCH_NUM_NUMBER]; /**< \brief (Pwm Offset: 0x200) ch_num = 0 .. 3 */
+} Pwm;
+
+#define PWM_REGS ((Pwm*) PWM)
+
+#define PWM_WPCR_WPKEY_PASSWD           (0x50574DU << 8) /**< \brief (PWM_WPCR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
+
+
+/////////////////////////////////////////////////////////////////////
+// ADC (Analog-to-Digital Converter) Registers
+/////////////////////////////////////////////////////////////////////
+
+typedef struct {
+    volatile uint32_t SWRST : 1;
+    volatile uint32_t START : 1;
+    volatile uint32_t       : 30;
+} ADC_CR_bits;
+
+typedef struct {
+    volatile uint32_t TRGEN : 1;
+    volatile uint32_t TRGSEL : 3;
+    volatile uint32_t LOWRES : 1;
+    volatile uint32_t SLEEP  : 1;
+    volatile uint32_t FWUP   : 1;
+    volatile uint32_t FREERUN : 1;
+    volatile uint32_t PRESCAL : 8;
+    volatile uint32_t STARTUP : 4;
+    volatile uint32_t SETTLING : 2;
+    volatile uint32_t          : 1;
+    volatile uint32_t ANACH    : 1;
+    volatile uint32_t TRACKTIM : 4;
+    volatile uint32_t TRANSFER : 2;
+    volatile uint32_t          : 1;
+    volatile uint32_t USEQ     : 1;
+} ADC_MR_bits;
+
+typedef struct {
+    volatile uint32_t       : 4;
+    volatile uint32_t TSON  : 1;
+    volatile uint32_t       : 3;
+    volatile uint32_t IBCTL : 2;
+    volatile uint32_t       : 22;
+} ADC_ACR_bits;
+
+/** \brief Adc hardware registers */
+typedef struct {
+    volatile ADC_CR_bits ADC_CR;        /**< \brief (Adc Offset: 0x00) Control Register */
+    volatile ADC_MR_bits ADC_MR;        /**< \brief (Adc Offset: 0x04) Mode Register */
+    volatile uint32_t ADC_SEQR1;     /**< \brief (Adc Offset: 0x08) Channel Sequence Register 1 */
+    volatile uint32_t ADC_SEQR2;     /**< \brief (Adc Offset: 0x0C) Channel Sequence Register 2 */
+    volatile uint32_t ADC_CHER;      /**< \brief (Adc Offset: 0x10) Channel Enable Register */
+    volatile uint32_t ADC_CHDR;      /**< \brief (Adc Offset: 0x14) Channel Disable Register */
+    volatile uint32_t ADC_CHSR;      /**< \brief (Adc Offset: 0x18) Channel Status Register */
+    volatile uint32_t Reserved1[1];
+    volatile uint32_t ADC_LCDR;      /**< \brief (Adc Offset: 0x20) Last Converted Data Register */
+    volatile uint32_t ADC_IER;       /**< \brief (Adc Offset: 0x24) Interrupt Enable Register */
+    volatile uint32_t ADC_IDR;       /**< \brief (Adc Offset: 0x28) Interrupt Disable Register */
+    volatile uint32_t ADC_IMR;       /**< \brief (Adc Offset: 0x2C) Interrupt Mask Register */
+    volatile uint32_t ADC_ISR;       /**< \brief (Adc Offset: 0x30) Interrupt Status Register */
+    volatile uint32_t Reserved2[2];
+    volatile uint32_t ADC_OVER;      /**< \brief (Adc Offset: 0x3C) Overrun Status Register */
+    volatile uint32_t ADC_EMR;       /**< \brief (Adc Offset: 0x40) Extended Mode Register */
+    volatile uint32_t ADC_CWR;       /**< \brief (Adc Offset: 0x44) Compare Window Register */
+    volatile uint32_t ADC_CGR;       /**< \brief (Adc Offset: 0x48) Channel Gain Register */
+    volatile uint32_t ADC_COR;       /**< \brief (Adc Offset: 0x4C) Channel Offset Register */
+    volatile uint32_t ADC_CDR[15];   /**< \brief (Adc Offset: 0x50) Channel Data Register */
+    volatile uint32_t Reserved3[2];
+    volatile ADC_ACR_bits ADC_ACR;       /**< \brief (Adc Offset: 0x94) Analog Control Register */
+    volatile uint32_t Reserved4[19];
+    volatile uint32_t ADC_WPMR;      /**< \brief (Adc Offset: 0xE4) Write Protect Mode Register */
+    volatile uint32_t ADC_WPSR;      /**< \brief (Adc Offset: 0xE8) Write Protect Status Register */
+    volatile uint32_t Reserved5[5];
+    volatile uint32_t ADC_RPR;       /**< \brief (Adc Offset: 0x100) Receive Pointer Register */
+    volatile uint32_t ADC_RCR;       /**< \brief (Adc Offset: 0x104) Receive Counter Register */
+    volatile uint32_t Reserved6[2];
+    volatile uint32_t ADC_RNPR;      /**< \brief (Adc Offset: 0x110) Receive Next Pointer Register */
+    volatile uint32_t ADC_RNCR;      /**< \brief (Adc Offset: 0x114) Receive Next Counter Register */
+    volatile uint32_t Reserved7[2];
+    volatile uint32_t ADC_PTCR;      /**< \brief (Adc Offset: 0x120) Transfer Control Register */
+    volatile uint32_t ADC_PTSR;      /**< \brief (Adc Offset: 0x124) Transfer Status Register */
+} Adc;
+
+#define ADC_REGS ((Adc*) ADC)
+
+#define ADC_WPMR_WPKEY_PASSWD           (0x414443U << 8) /**< \brief (ADC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
+
+
+/////////////////////////////////////////////////////////////////////
+// RTC Functions
+/////////////////////////////////////////////////////////////////////
+
+/** \brief Rtc hardware registers */
+typedef struct {
+    volatile uint32_t RTC_CR;     /**< \brief (Rtc Offset: 0x00) Control Register */
+    volatile uint32_t RTC_MR;     /**< \brief (Rtc Offset: 0x04) Mode Register */
+    volatile uint32_t RTC_TIMR;   /**< \brief (Rtc Offset: 0x08) Time Register */
+    volatile uint32_t RTC_CALR;   /**< \brief (Rtc Offset: 0x0C) Calendar Register */
+    volatile uint32_t RTC_TIMALR; /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
+    volatile uint32_t RTC_CALALR; /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
+    volatile uint32_t RTC_SR;     /**< \brief (Rtc Offset: 0x18) Status Register */
+    volatile uint32_t RTC_SCCR;   /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
+    volatile uint32_t RTC_IER;    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
+    volatile uint32_t RTC_IDR;    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
+    volatile uint32_t RTC_IMR;    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
+    volatile uint32_t RTC_VER;    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
+} Rtc;
+
+#define RTC_REGS ((Rtc*) RTC)
 
 
 /////////////////////////////////////////////////////////////////////
@@ -862,28 +1046,74 @@ char uartRx() {
 
 }
 
+
+/////////////////////////////////////////////////////////////////////
+// PWM Functions
+/////////////////////////////////////////////////////////////////////
+
+void pwmInit() {
+    // TODO
+}
+
+
+/////////////////////////////////////////////////////////////////////
+// ADC Functions
+/////////////////////////////////////////////////////////////////////
+
+#define BITS_12 0
+#define BITS_10 1
+
+#define GAIN_X1 0
+#define GAIN_X2 2
+#define GAIN_X4 3
+
+// ADC Clock defaults to 2 MHz; 1 MHz to 20 MHz is allowed
+void adcInit(uint32_t resolution) {
+    ADC_REGS->ADC_MR.LOWRES = resolution;
+    ADC_REGS->ADC_MR.ANACH = 1;
+}
+
+// Set offset to 1 to center the analog signal on Vrefin/2 prior to gain
+void adcChannelInit(int channel, int gain, int offset) {
+    ADC_REGS->ADC_CHER |= (1 << channel);
+    ADC_REGS->ADC_CGR |= (gain << (2*channel));
+    ADC_REGS->ADC_CGR &= ~(gain << (2*channel));
+    ADC_REGS->ADC_COR |= (offset << channel);
+}
+
+
+int adcRead(int channel) {
+    return ADC_REGS->ADC_CDR[channel];
+}
+
+
 /////////////////////////////////////////////////////////////////////
 // General Functions
 /////////////////////////////////////////////////////////////////////
+
 void samInit() {
     //Many peripherals on the SAM4S are write protected: unless the correct password is written in a peripheral memory address, write access to peripheral control registers is disabled. This is done for security reasons, but is not necessary in this header file. In the first part of this function, we enable write access to the PMC, PIO, SPI, and UART by writing a password into the peripheral's Write Protect Mode Register (WPMR)
 
-    //disabling PMC write protection (Password: "PMC")
+    // Disabling PMC write protection (Password: "PMC")
     PMC_REGS->PMC_WPMR = PMC_WPMR_WPKEY_PASSWD;
-    //disabling PIO write protection (Password: "PIO")
+    // Disabling PIO write protection (Password: "PIO")
     PIOA_REGS->PIO_WPMR = PIO_WPMR_WPKEY_PASSWD;
     PIOB_REGS->PIO_WPMR = PIO_WPMR_WPKEY_PASSWD;
-    //disabling SPI write protection (Password: "SPI")
+    // Disabling SPI write protection (Password: "SPI")
     SPI_REGS->SPI_WPMR = SPI_WPMR_WPKEY_PASSWD;
-    //There is no UART write protection
-
-    //disabling timer write protection (Password: "TIM")
+    // There is no UART write protection
+    // Disabling TIMER write protection (Password: "TIM")
     TC0_REGS->TC_WPMR = TC_WPMR_WPKEY_PASSWD;
     TC1_REGS->TC_WPMR = TC_WPMR_WPKEY_PASSWD;
+    // Disabling PWM write protection (Password: "PWM")
+    PWM_REGS->PWM_WPCR = PWM_WPCR_WPKEY_PASSWD;
+    // Disabling ADC write protection (Password: "ADC")
+    ADC_REGS->ADC_WPMR = ADC_WPMR_WPKEY_PASSWD;
+    // There is no RTC write protection
 
     //We next need to supply a clock to these peripherals. For a given peripheral, clock is enabled by writing a 1 into a specific bit of the PMC Peripheral Clock Enable Register (PCER). There are two registers for the 34 peripherals. Peripheral - bit number mapping is given in p36: Peripheral Identifiers.
 
-    //Activating clocks for UART 0 (PID 8), PIO A (PID 11), SPI (PID 21), TC0 (Timer/Counter CH0) (PID 23)
+    //Activating clocks for UART 0 (PID 8), PIO A (PID 11), SPI (PID 21), TC0 (Timer/Counter CH0) (PID 23) ...
 
     PMC_REGS->PMC_PCER0 = 1 << ID_UART0;
     PMC_REGS->PMC_PCER0 = 1 << ID_PIOA;
@@ -893,6 +1123,7 @@ void samInit() {
     PMC_REGS->PMC_PCER0 = 1 << ID_TC1;
     PMC_REGS->PMC_PCER0 = 1 << ID_PWM;
     PMC_REGS->PMC_PCER0 = 1 << ID_ADC;
+    // RTC is not dependent the PMC
 }
 
 #endif
