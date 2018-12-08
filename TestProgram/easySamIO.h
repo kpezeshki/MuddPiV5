@@ -23,10 +23,10 @@
  * TIMER: Refine delays, add delay_us()     DONE
  * TIMER: Final pass                        DONE
  * PMC:   Add support for FPGA clock        NOT STARTED
- * PMC:   Final pass                        NOT STARTED
- * SPI:   Fix "PCK" issue                   NOT STARTED
- * SPI:   Final pass                        NOT STARTED
- * UART:  Final pass                        NOT STARTED
+ * PMC:   Final pass                        DONE
+ * SPI:   Fix "PCK" issue                   DONE
+ * SPI:   Final pass                        IN PROGRESS
+ * UART:  Final pass                        IN PROGRESS
  * PWM:   Add base support                  NOT STARTED
  * PWM:   Test                              NOT STARTED
  * PWM:   Final pass                        NOT STARTED
@@ -67,32 +67,73 @@
 // PMC (Power Management Controller) Registers
 /////////////////////////////////////////////////////////////////////
 
-#define REG_PMC_SCER            (0x400E0400U) /**< \brief (PMC) System Clock Enable Register */
-#define REG_PMC_SCDR            (0x400E0404U) /**< \brief (PMC) System Clock Disable Register */
-#define REG_PMC_SCSR            (0x400E0408U) /**< \brief (PMC) System Clock Status Register */
-#define REG_PMC_PCER0           (0x400E0410U) /**< \brief (PMC) Peripheral Clock Enable Register 0 */
-#define REG_PMC_PCDR0           (0x400E0414U) /**< \brief (PMC) Peripheral Clock Disable Register 0 */
-#define REG_PMC_PCSR0           (0x400E0418U) /**< \brief (PMC) Peripheral Clock Status Register 0 */
-#define REG_CKGR_MOR            (0x400E0420U) /**< \brief (PMC) Main Oscillator Register */
-#define REG_CKGR_MCFR           (0x400E0424U) /**< \brief (PMC) Main Clock Frequency Register */
-#define REG_CKGR_PLLAR          (0x400E0428U) /**< \brief (PMC) PLLA Register */
-#define REG_CKGR_PLLBR          (0x400E042CU) /**< \brief (PMC) PLLB Register */
-#define REG_PMC_MCKR            (0x400E0430U) /**< \brief (PMC) Master Clock Register */
-#define REG_PMC_USB             (0x400E0438U) /**< \brief (PMC) USB Clock Register */
-#define REG_PMC_PCK             (0x400E0440U) /**< \brief (PMC) Programmable Clock 0 Register */
-#define REG_PMC_IER             (0x400E0460U) /**< \brief (PMC) Interrupt Enable Register */
-#define REG_PMC_IDR             (0x400E0464U) /**< \brief (PMC) Interrupt Disable Register */
-#define REG_PMC_SR              (0x400E0468U) /**< \brief (PMC) Status Register */
-#define REG_PMC_IMR             (0x400E046CU) /**< \brief (PMC) Interrupt Mask Register */
-#define REG_PMC_FSMR            (0x400E0470U) /**< \brief (PMC) Fast Startup Mode Register */
-#define REG_PMC_FSPR            (0x400E0474U) /**< \brief (PMC) Fast Startup Polarity Register */
-#define REG_PMC_FOCR            (0x400E0478U) /**< \brief (PMC) Fault Output Clear Register */
-#define REG_PMC_WPMR            (0x400E04E4U) /**< \brief (PMC) Write Protect Mode Register */
-#define REG_PMC_WPSR            (0x400E04E8U) /**< \brief (PMC) Write Protect Status Register */
-#define REG_PMC_PCER1           (0x400E0500U) /**< \brief (PMC) Peripheral Clock Enable Register 1 */
-#define REG_PMC_PCDR1           (0x400E0504U) /**< \brief (PMC) Peripheral Clock Disable Register 1 */
-#define REG_PMC_PCSR1           (0x400E0508U) /**< \brief (PMC) Peripheral Clock Status Register 1 */
-#define REG_PMC_OCR             (0x400E0510U) /**< \brief (PMC) Oscillator Calibration Register */
+/** \brief Pmc hardware registers */
+typedef struct {
+    uint32_t PMC_SCER;      /**< \brief (Pmc Offset: 0x0000) System Clock Enable Register */
+    uint32_t PMC_SCDR;      /**< \brief (Pmc Offset: 0x0004) System Clock Disable Register */
+    uint32_t PMC_SCSR;      /**< \brief (Pmc Offset: 0x0008) System Clock Status Register */
+    uint32_t Reserved1[1];
+    uint32_t PMC_PCER0;     /**< \brief (Pmc Offset: 0x0010) Peripheral Clock Enable Register 0 */
+    uint32_t PMC_PCDR0;     /**< \brief (Pmc Offset: 0x0014) Peripheral Clock Disable Register 0 */
+    uint32_t PMC_PCSR0;     /**< \brief (Pmc Offset: 0x0018) Peripheral Clock Status Register 0 */
+    uint32_t Reserved2[1];
+    uint32_t CKGR_MOR;      /**< \brief (Pmc Offset: 0x0020) Main Oscillator Register */
+    uint32_t CKGR_MCFR;     /**< \brief (Pmc Offset: 0x0024) Main Clock Frequency Register */
+    uint32_t CKGR_PLLAR;    /**< \brief (Pmc Offset: 0x0028) PLLA Register */
+    uint32_t CKGR_PLLBR;    /**< \brief (Pmc Offset: 0x002C) PLLB Register */
+    uint32_t PMC_MCKR;      /**< \brief (Pmc Offset: 0x0030) Master Clock Register */
+    uint32_t Reserved3[1];
+    uint32_t PMC_USB;       /**< \brief (Pmc Offset: 0x0038) USB Clock Register */
+    uint32_t Reserved4[1];
+    uint32_t PMC_PCK[3];    /**< \brief (Pmc Offset: 0x0040) Programmable Clock 0 Register */
+    uint32_t Reserved5[5];
+    uint32_t PMC_IER;       /**< \brief (Pmc Offset: 0x0060) Interrupt Enable Register */
+    uint32_t PMC_IDR;       /**< \brief (Pmc Offset: 0x0064) Interrupt Disable Register */
+    uint32_t PMC_SR;        /**< \brief (Pmc Offset: 0x0068) Status Register */
+    uint32_t PMC_IMR;       /**< \brief (Pmc Offset: 0x006C) Interrupt Mask Register */
+    uint32_t PMC_FSMR;      /**< \brief (Pmc Offset: 0x0070) Fast Startup Mode Register */
+    uint32_t PMC_FSPR;      /**< \brief (Pmc Offset: 0x0074) Fast Startup Polarity Register */
+    uint32_t PMC_FOCR;      /**< \brief (Pmc Offset: 0x0078) Fault Output Clear Register */
+    uint32_t Reserved6[26];
+    uint32_t PMC_WPMR;      /**< \brief (Pmc Offset: 0x00E4) Write Protect Mode Register */
+    uint32_t PMC_WPSR;      /**< \brief (Pmc Offset: 0x00E8) Write Protect Status Register */
+    uint32_t Reserved7[5];
+    uint32_t PMC_PCER1;     /**< \brief (Pmc Offset: 0x0100) Peripheral Clock Enable Register 1 */
+    uint32_t PMC_PCDR1;     /**< \brief (Pmc Offset: 0x0104) Peripheral Clock Disable Register 1 */
+    uint32_t PMC_PCSR1;     /**< \brief (Pmc Offset: 0x0108) Peripheral Clock Status Register 1 */
+    uint32_t Reserved8[1];
+    uint32_t PMC_OCR;       /**< \brief (Pmc Offset: 0x0110) Oscillator Calibration Register */
+} Pmc;
+
+#define PMC_REGS ((Pmc *) PMC)
+
+#define ID_SUPC   ( 0) /**< \brief Supply Controller (SUPC) */
+#define ID_RSTC   ( 1) /**< \brief Reset Controller (RSTC) */
+#define ID_RTC    ( 2) /**< \brief Real Time Clock (RTC) */
+#define ID_RTT    ( 3) /**< \brief Real Time Timer (RTT) */
+#define ID_WDT    ( 4) /**< \brief Watchdog Timer (WDT) */
+#define ID_PMC    ( 5) /**< \brief Power Management Controller (PMC) */
+#define ID_EFC    ( 6) /**< \brief Enhanced Embedded Flash Controller (EFC) */
+#define ID_UART0  ( 8) /**< \brief UART 0 (UART0) */
+#define ID_UART1  ( 9) /**< \brief UART 1 (UART1) */
+#define ID_PIOA   (11) /**< \brief Parallel I/O Controller A (PIOA) */
+#define ID_PIOB   (12) /**< \brief Parallel I/O Controller B (PIOB) */
+#define ID_USART0 (14) /**< \brief USART 0 (USART0) */
+#define ID_USART1 (15) /**< \brief USART 1 (USART1) */
+#define ID_HSMCI  (18) /**< \brief Multimedia Card Interface (HSMCI) */
+#define ID_TWI0   (19) /**< \brief Two Wire Interface 0 (TWI0) */
+#define ID_TWI1   (20) /**< \brief Two Wire Interface 1 (TWI1) */
+#define ID_SPI    (21) /**< \brief Serial Peripheral Interface (SPI) */
+#define ID_SSC    (22) /**< \brief Synchronous Serial Controler (SSC) */
+#define ID_TC0    (23) /**< \brief Timer/Counter 0 (TC0) */
+#define ID_TC1    (24) /**< \brief Timer/Counter 1 (TC1) */
+#define ID_TC2    (25) /**< \brief Timer/Counter 2 (TC2) */
+#define ID_ADC    (29) /**< \brief Analog To Digital Converter (ADC) */
+#define ID_DACC   (30) /**< \brief Digital To Analog Converter (DACC) */
+#define ID_PWM    (31) /**< \brief Pulse Width Modulation (PWM) */
+#define ID_CRCCU  (32) /**< \brief CRC Calculation Unit (CRCCU) */
+#define ID_ACC    (33) /**< \brief Analog Comparator (ACC) */
+#define ID_UDP    (34) /**< \brief USB Device Port (UDP) */
 
 #define PMC_WPMR_WPKEY_PASSWD           (0x504D43u << 8) /**< \brief (PMC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
@@ -280,15 +321,15 @@ typedef struct {
 
 /** \brief TcChannel hardware registers */
 typedef struct {
-    TC_CCR_bits TC_CCR;        /**< \brief (TcChannel Offset: 0x0) Channel Control Register */
-    TC_CMR_bits TC_CMR;        /**< \brief (TcChannel Offset: 0x4) Channel Mode Register */
+    volatile TC_CCR_bits TC_CCR;        /**< \brief (TcChannel Offset: 0x0) Channel Control Register */
+    volatile TC_CMR_bits TC_CMR;        /**< \brief (TcChannel Offset: 0x4) Channel Mode Register */
     uint32_t    TC_SMMR;       /**< \brief (TcChannel Offset: 0x8) Stepper Motor Mode Register */
     uint32_t    Reserved1[1];
     uint32_t    TC_CV;         /**< \brief (TcChannel Offset: 0x10) Counter Value */
     uint32_t    TC_RA;         /**< \brief (TcChannel Offset: 0x14) Register A */
     uint32_t    TC_RB;         /**< \brief (TcChannel Offset: 0x18) Register B */
     uint32_t    TC_RC;         /**< \brief (TcChannel Offset: 0x1C) Register C */
-    TC_SR_bits  TC_SR;         /**< \brief (TcChannel Offset: 0x20) Status Register */
+    volatile TC_SR_bits  TC_SR;         /**< \brief (TcChannel Offset: 0x20) Status Register */
     uint32_t    TC_IER;        /**< \brief (TcChannel Offset: 0x24) Interrupt Enable Register */
     uint32_t    TC_IDR;        /**< \brief (TcChannel Offset: 0x28) Interrupt Disable Register */
     uint32_t    TC_IMR;        /**< \brief (TcChannel Offset: 0x2C) Interrupt Mask Register */
@@ -298,16 +339,16 @@ typedef struct {
 /** \brief Tc hardware registers */
 #define TCCHANNEL_NUMBER 3
 typedef struct {
-    TcChannel  TC_CHANNEL[TCCHANNEL_NUMBER]; /**< \brief (Tc Offset: 0x0) channel = 0 .. 2 */
-    uint32_t TC_BCR;        /**< \brief (Tc Offset: 0xC0) Block Control Register */
-    uint32_t TC_BMR;        /**< \brief (Tc Offset: 0xC4) Block Mode Register */
-    uint32_t TC_QIER;       /**< \brief (Tc Offset: 0xC8) QDEC Interrupt Enable Register */
-    uint32_t TC_QIDR;       /**< \brief (Tc Offset: 0xCC) QDEC Interrupt Disable Register */
-    uint32_t TC_QIMR;       /**< \brief (Tc Offset: 0xD0) QDEC Interrupt Mask Register */
-    uint32_t TC_QISR;       /**< \brief (Tc Offset: 0xD4) QDEC Interrupt Status Register */
-    uint32_t TC_FMR;        /**< \brief (Tc Offset: 0xD8) Fault Mode Register */
-    uint32_t Reserved1[2];
-    uint32_t TC_WPMR;       /**< \brief (Tc Offset: 0xE4) Write Protect Mode Register */
+    TcChannel TC_CHANNEL[TCCHANNEL_NUMBER]; /**< \brief (Tc Offset: 0x0) channel = 0 .. 2 */
+    uint32_t  TC_BCR;        /**< \brief (Tc Offset: 0xC0) Block Control Register */
+    uint32_t  TC_BMR;        /**< \brief (Tc Offset: 0xC4) Block Mode Register */
+    uint32_t  TC_QIER;       /**< \brief (Tc Offset: 0xC8) QDEC Interrupt Enable Register */
+    uint32_t  TC_QIDR;       /**< \brief (Tc Offset: 0xCC) QDEC Interrupt Disable Register */
+    uint32_t  TC_QIMR;       /**< \brief (Tc Offset: 0xD0) QDEC Interrupt Mask Register */
+    uint32_t  TC_QISR;       /**< \brief (Tc Offset: 0xD4) QDEC Interrupt Status Register */
+    uint32_t  TC_FMR;        /**< \brief (Tc Offset: 0xD8) Fault Mode Register */
+    uint32_t  Reserved1[2];
+    uint32_t  TC_WPMR;       /**< \brief (Tc Offset: 0xE4) Write Protect Mode Register */
 } Tc;
 
 #define TC_WPMR_WPKEY_PASSWD (0x54494Du << 8) /**< \brief (TC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
@@ -495,7 +536,7 @@ int channelToBlock(int channelID) {
 
 // Returns a pointer to a Tc-sized chunk of memory at a given block's base address
 uint32_t blockToBlockBase(int block) {
-    uint32_t base = block ? TC1 : TC0;
+    return (block ? TC1 : TC0);
 }
 
 uint32_t channelToBlockBase(int channelID) {
@@ -510,10 +551,10 @@ uint32_t channelToChannelBase(int channelID) {
 
 void channelInit(int channelID, int clock, int mode) {
     TcChannel* channel = (TcChannel*) channelToChannelBase(channelID);
-    channel->TC_CCR.CLKEN   = 1;     // Enable clock
-    channel->TC_CMR.TCCLKS  = clock; // Set clock to desired clock
-    channel->TC_CMR.WAVE    = 1;     // Waveform mode
-    channel->TC_CMR.WAVESEL = mode;  // Set counting mdoe to desired mode
+    (channel->TC_CCR).CLKEN   = 1;     // Enable clock
+    (channel->TC_CMR).TCCLKS  = clock; // Set clock to desired clock
+    (channel->TC_CMR).WAVE    = 1;     // Waveform mode
+    (channel->TC_CMR).WAVESEL = mode;  // Set counting mode to desired mode
 }
 
 uint32_t readChannel(int channelID) {
@@ -700,10 +741,14 @@ void samInit() {
 
     //Activating clocks for UART 0 (PID 8), PIO A (PID 11), SPI (PID 21), TC0 (Timer/Counter CH0) (PID 23)
 
-	*((uint32_t *) REG_PMC_PCER0) |= (1<<8);
-	*((uint32_t *) REG_PMC_PCER0) |= (1<<11);
-	*((uint32_t *) REG_PMC_PCER0) |= (1<<21);
-	*((uint32_t *) REG_PMC_PCER0) |= (1<<23);
+	PMC_REGS->PMC_PCER0 = 1 << ID_UART0;
+    PMC_REGS->PMC_PCER0 = 1 << ID_PIOA;
+    PMC_REGS->PMC_PCER0 = 1 << ID_PIOB;
+    PMC_REGS->PMC_PCER0 = 1 << ID_SPI;
+    PMC_REGS->PMC_PCER0 = 1 << ID_TC0;
+    PMC_REGS->PMC_PCER0 = 1 << ID_TC1;
+    PMC_REGS->PMC_PCER0 = 1 << ID_PWM;
+    PMW_REGS->PMC_PCER0 = 1 << ID_ADC;
 }
 
 #endif
