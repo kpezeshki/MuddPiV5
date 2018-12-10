@@ -19,7 +19,7 @@
    The webserver automatically parses a client request to simplify code on the MCU. If the server has example IP address '192.168.1.1', a client request may be the URL:
    'http://192.168.1.1/webpage'
    The server will return everything after the IP address and slash. For example:
-   'http://192.168.1.1/webpage' => 'REQ:webpage/REQ
+   'http://192.168.1.1/webpage' => 'R:webpage/R'
 
    We expect these abbreviated URLs to be under 10 characters
 */
@@ -141,7 +141,7 @@ String parseRequest(String request) {
   int getLocation = request.indexOf("GET /");
   int httpLocation = request.indexOf(" HTTP");
 
-  String parsedRequest = "REQ:" + request.substring(getLocation + 5, httpLocation) + "/REQ";
+  String parsedRequest = "<" + request.substring(getLocation + 5, httpLocation) + ">";
 
   Serial.print("Reduced URL: '");
   Serial.print(parsedRequest);
