@@ -1127,12 +1127,15 @@ void pwmInit() {
 #define CH9  9
 #define CH15 15
 
-#define BITS_12 0
-#define BITS_10 1
+#define ADC_BITS_12 0
+#define ADC_BITS_10 1
 
-#define GAIN_X1 0
-#define GAIN_X2 2
-#define GAIN_X4 3
+#define ADC_GAIN_X1 0
+#define ADC_GAIN_X2 2
+#define ADC_GAIN_X4 3
+
+#define ADC_OFFSET_ON  1
+#define ADC_OFFSET_OFF 0
 
 #define ADC_CH0_PIN  PA17
 #define ADC_CH1_PIN  PA18
@@ -1145,6 +1148,11 @@ void pwmInit() {
 #define ADC_CH8_PIN  PA21
 #define ADC_CH9_PIN  PA22
 
+#define ADC_VREF 3.3
+
+#define ADC_DMAX_10 1023
+#define ADC_DMAX_12 4095
+
 #define ADC_FUNC PERIPH_D
 
 // ADC Clock defaults to 2 MHz; 1 MHz to 20 MHz is allowed
@@ -1153,7 +1161,7 @@ void adcInit(uint32_t resolution) {
     ADC_REGS->ADC_MR.ANACH = 1; // Allow channels to have independent settings
 }
 
-// Set offset to 1 to center the analog signal on Vrefin/2 prior to gain
+// Set offset to 1 to center the analog signal on (G-1)Vrefin/2 prior to gain
 void adcChannelInit(int channel, int gain, int offset) {
     // Set the channel's PIO pin to perform its ADC function
     switch (channel) {
@@ -1184,13 +1192,19 @@ void adcChannelInit(int channel, int gain, int offset) {
 
     // Set the gain
     ADC_REGS->ADC_CGR |= (gain << (2*channel));
-    ADC_REGS->ADC_CGR &= ~(gain << (2*channel));
+    ADC_REGS->ADC_CGR &= ~((~gain & 0b11) << (2*channel));
 
-    ADC_REGS->ADC_COR |= (offset << channel); // Set the offset
+    // Set the offset
+    ADC_REGS->ADC_COR |= (offset << channel);
+    ADC_REGS->ADC_COR &= ~((~offset & 0b1) << channel);
 }
 
-int adcRead(int channel) {
-    return ADC_REGS->ADC_CDR[channel];
+float adcRead(int channel) {
+    ADC_REGS->ADC_CR.START = 1; // Start conversion
+    while (!((ADC_REGS->ADC_ISR >> channel) & 1)); // Wait for conversion
+    int d = ADC_REGS->ADC_CDR[channel];
+    int dMax = (ADC_REGS->ADC_MR.LOWRES) ? ADC_DMAX_10 : ADC_DMAX_12;
+    return (((float) d) / dMax) * ADC_VREF;
 }
 
 
