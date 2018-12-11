@@ -7,13 +7,27 @@
 
 #include "easySamIO.h"
 #include <string.h>
+//#include <stdio.h>
 #define LED_PIN 17
 #define TRANSMIT_PIN 18
 
-const char* webpageStart = "<!DOCTYPE html><html>\n    <head>\n        <title>E155 Web Server Demo Webpage</title>\n        <meta http-equiv=\"refresh\" content=\"120\">\n    </head>\n    <body>\n        <h1>E155 Web Server Demo Webpage</h1>\n        <p>Current Microcontroller Time:</p>\n        ";
+const char* webpageStart = "<!DOCTYPE html><html>\n    <head>\n        <title>E155 Web Server Demo Webpage</title>\n        <meta http-equiv=\"refresh\" content=\"120\">\n    </head>\n    <body>\n        <h1>E155 Web Server Demo Webpage</h1>\n        <p>Current Microcontroller ADC :</p>\n        ";
 const char* webpageEnd   = "\n        <p>LED Control:</p>\n        <form action=\"on\">\n            <input type=\"submit\" value=\"Turn the LED on!\" />\n        </form>\n        <form action=\"off\">\n                <input type=\"submit\" value=\"Turn the LED off!\" />\n        </form>\n    </body>\n</html>\n";
 const int webpageStartChars = 257;
 const int webpageEndChars = 264;
+
+int currentRxState = 0;
+char character;
+char request[14] = "               ";
+int requestFound = 0;
+int currentRequestChar = 0;
+int startInString = 0;
+int endInString = 0;
+const char requestStart = 0x3c;
+const char requestEnd = 0x3e;
+float currentAdcVal;
+char currentAdcValStr[5];
+
 
 int main(void) {
     /* Initialize the SAM system */
@@ -23,16 +37,10 @@ int main(void) {
 	pinMode(TRANSMIT_PIN, OUTPUT);
 	digitalWrite(TRANSMIT_PIN, HIGH);
 	uartInit(4, 25);
+	adcInit(0);
+	adcChannelInit(0, 0, 0);
 	
-	int currentRxState = 0;
-	char character;
-	char request[14] = "               ";
-	int requestFound = 0;
-	int currentRequestChar = 0;
-	int startInString = 0;
-	int endInString = 0;
-	const char requestStart = 0x3c;
-	const char requestEnd = 0x3e;
+
 	transmitWebpage();
 	
 	
@@ -40,7 +48,7 @@ int main(void) {
     while (1) 
     {
 		//checking whether a byte is available
-		currentRxState = ((REG_UART_SR) & 1);
+		currentRxState = UART_REGS->UART_SR.RXRDY;
 		//testing string checking
 		if (currentRxState == 1) { //if there is a character to read
 			if(currentRequestChar == 14) {
@@ -89,6 +97,14 @@ void transmitWebpage() {
 	for (int charCount = 0; charCount < webpageStartChars; charCount++) {
 		uartTx(webpageStart[charCount]);
 		if (webpageStart[charCount] == '\n') {uartTx('\r');}
+	}
+	//reading the ADC
+	currentAdcVal = adcRead(0);
+	//converting to a string
+	//snprintf(currentAdcValStr, 6, "%f", currentAdcVal);
+	//transmitting
+	for (int charCount = 0; charCount < 6; charCount++) {
+		uartTx(currentAdcValStr[charCount]);
 	}
 	for (int charCount = 0; charCount < webpageEndChars; charCount++) {
 		uartTx(webpageEnd[charCount]);
