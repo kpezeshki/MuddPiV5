@@ -1287,7 +1287,7 @@ OUTPUT(sam_backend_oldheader.elf elf32-littlearm)
  .debug_ranges  0x00000000       0x18 Device_Startup/startup_sam3s.o
  .debug_ranges  0x00000018      0x1a8 main.o
 
-.debug_macro    0x00000000     0xc8f1
+.debug_macro    0x00000000     0xc8f5
  .debug_macro   0x00000000      0x2cf Device_Startup/startup_sam3s.o
  .debug_macro   0x000002cf      0x8b0 Device_Startup/startup_sam3s.o
  .debug_macro   0x00000b7f       0x22 Device_Startup/startup_sam3s.o
@@ -1356,36 +1356,36 @@ OUTPUT(sam_backend_oldheader.elf elf32-littlearm)
  .debug_macro   0x0000ad44      0x1e7 Device_Startup/startup_sam3s.o
  .debug_macro   0x0000af2b      0x5e5 Device_Startup/startup_sam3s.o
  .debug_macro   0x0000b510       0xf2 Device_Startup/startup_sam3s.o
- .debug_macro   0x0000b602      0x1f6 main.o
- .debug_macro   0x0000b7f8      0x49c main.o
- .debug_macro   0x0000bc94       0x58 main.o
- .debug_macro   0x0000bcec       0x35 main.o
- .debug_macro   0x0000bd21       0x9c main.o
- .debug_macro   0x0000bdbd      0x16d main.o
- .debug_macro   0x0000bf2a       0x58 main.o
- .debug_macro   0x0000bf82       0x1f main.o
- .debug_macro   0x0000bfa1       0x43 main.o
- .debug_macro   0x0000bfe4       0x20 main.o
- .debug_macro   0x0000c004      0x187 main.o
- .debug_macro   0x0000c18b      0x353 main.o
- .debug_macro   0x0000c4de       0x10 main.o
- .debug_macro   0x0000c4ee       0x35 main.o
- .debug_macro   0x0000c523       0x1c main.o
- .debug_macro   0x0000c53f       0x10 main.o
- .debug_macro   0x0000c54f       0x10 main.o
- .debug_macro   0x0000c55f       0x1c main.o
- .debug_macro   0x0000c57b       0x52 main.o
- .debug_macro   0x0000c5cd       0x40 main.o
- .debug_macro   0x0000c60d       0x10 main.o
- .debug_macro   0x0000c61d       0x40 main.o
- .debug_macro   0x0000c65d       0xd7 main.o
- .debug_macro   0x0000c734       0x16 main.o
- .debug_macro   0x0000c74a      0x18b main.o
- .debug_macro   0x0000c8d5       0x1c main.o
+ .debug_macro   0x0000b602      0x200 main.o
+ .debug_macro   0x0000b802      0x49c main.o
+ .debug_macro   0x0000bc9e       0x58 main.o
+ .debug_macro   0x0000bcf6       0x35 main.o
+ .debug_macro   0x0000bd2b       0x9c main.o
+ .debug_macro   0x0000bdc7      0x16d main.o
+ .debug_macro   0x0000bf34       0x58 main.o
+ .debug_macro   0x0000bf8c       0x1f main.o
+ .debug_macro   0x0000bfab       0x43 main.o
+ .debug_macro   0x0000bfee       0x20 main.o
+ .debug_macro   0x0000c00e      0x187 main.o
+ .debug_macro   0x0000c195      0x353 main.o
+ .debug_macro   0x0000c4e8       0x10 main.o
+ .debug_macro   0x0000c4f8       0x35 main.o
+ .debug_macro   0x0000c52d       0x1c main.o
+ .debug_macro   0x0000c549       0x10 main.o
+ .debug_macro   0x0000c559       0x10 main.o
+ .debug_macro   0x0000c569       0x1c main.o
+ .debug_macro   0x0000c585       0x52 main.o
+ .debug_macro   0x0000c5d7       0x40 main.o
+ .debug_macro   0x0000c617       0x10 main.o
+ .debug_macro   0x0000c627       0x40 main.o
+ .debug_macro   0x0000c667       0xd7 main.o
+ .debug_macro   0x0000c73e       0x16 main.o
+ .debug_macro   0x0000c754      0x18b main.o
+ .debug_macro   0x0000c8df       0x16 main.o
 
-.debug_line     0x00000000      0xed9
+.debug_line     0x00000000      0xee4
  .debug_line    0x00000000      0x68c Device_Startup/startup_sam3s.o
- .debug_line    0x0000068c      0x84d main.o
+ .debug_line    0x0000068c      0x858 main.o
 
 .debug_str      0x00000000    0x3d7d7
  .debug_str     0x00000000    0x37f6a Device_Startup/startup_sam3s.o
