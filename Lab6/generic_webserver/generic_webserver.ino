@@ -9,11 +9,18 @@
    1) The webserver starts a 9600 baud serial connection over the hardware UART (for debug)
    2) The webserver starts a 9600 baud software serial connection over pins 14 and 15 (RX, TX)
    3) The webserver connects to a given network, and prints status information over the debug UART. By default, this is CINE.
-   4) The webserver waits for a request from the client, after which it sends a string to the MCU: "REQ:" + <abbr. url> + "/REQ"
-   5) The webserver waits for the MCU to send over an HTML webpage, defined as "<!DOCTYPE html><html> ... </html>"
-   6) The webserver displays this webpage to any connected clients
+   4) The webserver sends an empty request '<>' to the microcontroller to obtain a copy of the webpage
+   5) The webserver initializes an HTTP server and a hardware refresh timer
+   6) The webserver waits for a request from the client, after which it transmits an updated webpage
 
    steps 4-6 are repeated while the program runs
+
+   In parallel, a hardware timer triggers an interrupt every 10 seconds. This will cause a refresh of the webpage from the MCU by
+   sending the most recent abbreviated URL to the MCU as "<" + <abbr. url> + ">", and waiting for an updated webpage to be returned
+   over UART. This only occurs if the following conditions are met:
+
+   1) The hardware timer interrupt has not been handled, occuring when refreshWebpage = true
+   2) A client has requested data from the webpage after the last refresh of the webpage from the MCU. This occurs when webpageUpdated = false
 
    Abbreviated URL explanation:
    The webserver automatically parses a client request to simplify code on the MCU. If the server has example IP address '192.168.1.1', a client request may be the URL:
@@ -43,18 +50,31 @@ String     request;              //Stores the client HTTP request
 String     parsedRequest;        //Stores a simplified version of the HTTP request to transmit to the MCU
 String     currentLine;          //Stores a semi-parsed version of the HTTP request
 String     webpage = "WAITING FOR DATA";  //The current webpage, updated by the MCU
-bool       fetchWebpage = false; //after the client has connected and disconnected, we fetch a new webpage from the MCU
 
 //Defining the softwareSerial interface
 SoftwareSerial mcuSerial(14, 15);
 
+extern "C" {
+#include "user_interface.h"
+}
+
+//defining the webpage refresh timer
+os_timer_t refreshTimer;
+bool refreshWebpage = false;
+bool webpageUpdated = true;
+
+//Timer callback. This function will run when the timer reaches the set webpage refresh time
+void timerCallback(void *pArg) {
+      refreshWebpage = true;
+}
+
 //Setup code. Runs once on program execution before loop code
 void setup() {
   //starting the debug and MCU serial connections
-  Serial.begin(9600);
+  Serial.begin(115200);
   mcuSerial.begin(9600);
   Serial.println("Set up serial connections");
-
+  
   //connecting to WiFi network
   Serial.print("Connecting to network ");
   Serial.println(networkName);
@@ -70,22 +90,35 @@ void setup() {
   Serial.println(WiFi.localIP());
   ip = ipToString(WiFi.localIP());
 
+
   //fetching a new webpage
   receiveWebPage("<>");
 
   //starting server
   Serial.println("Starting server");
   server.begin();
+
+  //defining the webpage reload timer
+  os_timer_setfn(&refreshTimer, timerCallback, NULL);
+  os_timer_arm(&refreshTimer, 10000, true); //fetches a new webpage every 10 seconds
 }
 
 //Main program. Runs repeatedly after setup code
 void loop() {
+
+  //we update the webpage every 9 seconds to prevent timeout errors
+  if(refreshWebpage & !webpageUpdated) {
+    refreshWebpage = false;
+    webpageUpdated = true;
+    webpage = receiveWebPage(parsedRequest);
+  }
+  
   //Wait for a new connection
-  //Serial.println("waiting for connection");
   WiFiClient webClient = server.available();
   //If a client has connected, we wait for a request
   if (webClient) {
-    fetchWebpage = true;
+    webpageUpdated = false;
+    currentLine = "";
     Serial.println("\nClient Connected");
     while (webClient.connected()) {
       //Reading available bytes from the client if available
@@ -120,15 +153,10 @@ void loop() {
       }
     }
     //ending the transaction
-    parsedRequest = parseRequest(request);
+    if (parseRequest(request) != "<>") { parsedRequest = parseRequest(request); }
     request = "";
     webClient.stop();
     Serial.println("Client disconnected");
-  }
-  //we update the webpage after the client has disconnected to prevent any timeout errors
-  if (fetchWebpage) {
-    fetchWebpage = false;
-    webpage = receiveWebPage(parsedRequest);
   }
 }
 
@@ -147,6 +175,7 @@ String parseRequest(String request) {
   Serial.println(request);
   Serial.println("////END Received Request: ");
 
+  //favicon is a common icon formatting scheme that tends 
   if (request.indexOf("favicon.ico") != -1) return "<>";
 
   int getLocation = request.indexOf("GET /");
@@ -161,12 +190,14 @@ String parseRequest(String request) {
 }
 
 //Sends parsedRequest over UART to the MCU and waits for a complete webpage to be returned
-String receiveWebPage(String parsedRequest) {
+String receiveWebPage(String parsedRequestIn) {
   Serial.println("////START Received Web Page");
+  Serial.print("Transmitting:");
+  Serial.println(parsedRequestIn);
   webpage = ""; //clear webpage in preparation for new webpage to be transmitted
   bool webpageReceived = false;
   //transmitting the parsed request from the client
-  mcuSerial.print(parsedRequest);
+  mcuSerial.print(parsedRequestIn);
   //wait until the entire webpage has been received
 
   while (!webpageReceived) {
