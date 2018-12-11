@@ -21,7 +21,7 @@
  * PIO:   Bit field pass                    DONE
  * TIMER: Add support for TC1               DONE
  * TIMER: Refine delays, add delay_us()     DONE
- * TIMER: Add slow clock functionality      NOT STARTED
+ * TIMER: Add slow clock functionality      NOT STARTED (EXTRA)
  * TIMER: Bit field pass                    DONE
  * PMC:   Add support for FPGA clock        NOT STARTED
  * PMC:   Bit fields                        DONE
@@ -31,13 +31,13 @@
  * PWM:   Add base support                  NOT STARTED
  * PWM:   Test                              NOT STARTED
  * PWM:   Bit field pass                    DONE
- * ADC:   Add base support                  NOT STARTED
+ * ADC:   Add base support                  DONE
  * ADC:   Test                              NOT STARTED
- * ADC:   Bit field pass                    NOT STARTED
- * RTC:   Add base support                  NOT STARTED
- * RTC:   Bit field pass                    NOT STARTED
+ * ADC:   Bit field pass                    DONE
+ * RTC:   Add base support                  DONE
+ * RTC:   Bit field pass                    DONE
  * All:   Improve WPMR Keys?                NOT STARTED
- * All:   Final pass                        NOT STARTED
+ * All:   Final pass                        DONE
  */
 
 //Constants taken from ATSAM4S4B CMSIS Library
@@ -231,54 +231,6 @@ typedef struct {
 
 #define PIOA_REGS ((Pio*) PIOA)
 #define PIOB_REGS ((Pio*) PIOB)
-
-#define PA0  0
-#define PA1  1
-#define PA2  2
-#define PA3  3
-#define PA4  4
-#define PA5  5
-#define PA6  6
-#define PA7  7
-#define PA8  8
-#define PA9  9
-#define PA10 10
-#define PA11 11
-#define PA12 12
-#define PA13 13
-#define PA14 14
-#define PA15 15
-#define PA16 16
-#define PA17 17
-#define PA18 18
-#define PA19 19
-#define PA20 20
-#define PA21 21
-#define PA22 22
-#define PA23 23
-#define PA24 24
-#define PA25 25
-#define PA26 26
-#define PA27 27
-#define PA28 28
-#define PA29 29
-#define PA30 30
-#define PA31 31
-#define PB0  32
-#define PB1  33
-#define PB2  34
-#define PB3  35
-#define PB4  36
-#define PB5  37
-#define PB6  38
-#define PB7  39
-#define PB8  40
-#define PB9  41
-#define PB10 42
-#define PB11 43
-#define PB12 44
-#define PB13 45
-#define PB14 46
 
 #define PIO_WPMR_WPKEY_PASSWD (0x50494Fu << 8) /**< \brief (PIO_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
@@ -706,23 +658,76 @@ typedef struct {
 
 
 /////////////////////////////////////////////////////////////////////
-// RTC Functions
+// RTC (Real Time Clock) Registers
 /////////////////////////////////////////////////////////////////////
+
+typedef struct {
+    volatile uint32_t UPDTIM   : 1;
+    volatile uint32_t UPDCAL   : 1;
+    volatile uint32_t          : 6;
+    volatile uint32_t TIMEVSEL : 2;
+    volatile uint32_t          : 6;
+    volatile uint32_t CALEVSEL : 2;
+    volatile uint32_t          : 14;
+} RTC_CR_bits;
+
+typedef struct {
+    volatile uint32_t HRMOD : 1;
+    volatile uint32_t       : 31;
+} RTC_MR_bits;
+
+typedef struct {
+    volatile uint32_t SEC  : 7;
+    volatile uint32_t      : 1;
+    volatile uint32_t MIN  : 7;
+    volatile uint32_t      : 1;
+    volatile uint32_t HOUR : 6;
+    volatile uint32_t AMPM : 1;
+    volatile uint32_t      : 9;
+} RTC_TIMR_bits;
+
+typedef struct {
+    volatile uint32_t CENT  : 7;
+    volatile uint32_t       : 1;
+    volatile uint32_t YEAR  : 8;
+    volatile uint32_t MONTH : 5;
+    volatile uint32_t DAY   : 3;
+    volatile uint32_t DATE  : 6;
+    volatile uint32_t       : 2;
+} RTC_CALR_bits;
+
+typedef struct {
+    volatile uint32_t ACKUPD : 1;
+    volatile uint32_t ALARM  : 1;
+    volatile uint32_t SEC    : 1;
+    volatile uint32_t TIMEV  : 1;
+    volatile uint32_t CALEV  : 1;
+    volatile uint32_t        : 27;
+} RTC_SR_bits;
+
+typedef struct {
+    volatile uint32_t ACKCLR : 1;
+    volatile uint32_t ALRCLR : 1;
+    volatile uint32_t SECCLR : 1;
+    volatile uint32_t TIMCLR : 1;
+    volatile uint32_t CALCLR : 1;
+    volatile uint32_t        : 27;
+} RTC_SCCR_bits;
 
 /** \brief Rtc hardware registers */
 typedef struct {
-    volatile uint32_t RTC_CR;     /**< \brief (Rtc Offset: 0x00) Control Register */
-    volatile uint32_t RTC_MR;     /**< \brief (Rtc Offset: 0x04) Mode Register */
-    volatile uint32_t RTC_TIMR;   /**< \brief (Rtc Offset: 0x08) Time Register */
-    volatile uint32_t RTC_CALR;   /**< \brief (Rtc Offset: 0x0C) Calendar Register */
-    volatile uint32_t RTC_TIMALR; /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
-    volatile uint32_t RTC_CALALR; /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
-    volatile uint32_t RTC_SR;     /**< \brief (Rtc Offset: 0x18) Status Register */
-    volatile uint32_t RTC_SCCR;   /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
-    volatile uint32_t RTC_IER;    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
-    volatile uint32_t RTC_IDR;    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
-    volatile uint32_t RTC_IMR;    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
-    volatile uint32_t RTC_VER;    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
+    volatile RTC_CR_bits   RTC_CR;     /**< \brief (Rtc Offset: 0x00) Control Register */
+    volatile RTC_MR_bits   RTC_MR;     /**< \brief (Rtc Offset: 0x04) Mode Register */
+    volatile RTC_TIMR_bits RTC_TIMR;   /**< \brief (Rtc Offset: 0x08) Time Register */
+    volatile RTC_CALR_bits RTC_CALR;   /**< \brief (Rtc Offset: 0x0C) Calendar Register */
+    volatile uint32_t      RTC_TIMALR; /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
+    volatile uint32_t      RTC_CALALR; /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
+    volatile RTC_SR_bits   RTC_SR;     /**< \brief (Rtc Offset: 0x18) Status Register */
+    volatile RTC_SCCR_bits RTC_SCCR;   /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
+    volatile uint32_t      RTC_IER;    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
+    volatile uint32_t      RTC_IDR;    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
+    volatile uint32_t      RTC_IMR;    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
+    volatile uint32_t      RTC_VER;    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
 } Rtc;
 
 #define RTC_REGS ((Rtc*) RTC)
@@ -746,6 +751,54 @@ typedef struct {
 #define PERIPH_D    5 // Arbitrary ID for peripheral function D
 #define PULL_DOWN   6 // Arbitrary ID for a pull-down resistor
 #define FLOATING    7 // Arbitrary ID for neither a pull-up nor a pull-down resistor
+
+#define PA0  0
+#define PA1  1
+#define PA2  2
+#define PA3  3
+#define PA4  4
+#define PA5  5
+#define PA6  6
+#define PA7  7
+#define PA8  8
+#define PA9  9
+#define PA10 10
+#define PA11 11
+#define PA12 12
+#define PA13 13
+#define PA14 14
+#define PA15 15
+#define PA16 16
+#define PA17 17
+#define PA18 18
+#define PA19 19
+#define PA20 20
+#define PA21 21
+#define PA22 22
+#define PA23 23
+#define PA24 24
+#define PA25 25
+#define PA26 26
+#define PA27 27
+#define PA28 28
+#define PA29 29
+#define PA30 30
+#define PA31 31
+#define PB0  32
+#define PB1  33
+#define PB2  34
+#define PB3  35
+#define PB4  36
+#define PB5  37
+#define PB6  38
+#define PB7  39
+#define PB8  40
+#define PB9  41
+#define PB10 42
+#define PB11 43
+#define PB12 44
+#define PB13 45
+#define PB14 46
 
 // Returns the port ID that corresponds to a given pin
 int pinToPort(int pin) {
@@ -1052,7 +1105,9 @@ char uartRx() {
 /////////////////////////////////////////////////////////////////////
 
 void pwmInit() {
-    // TODO
+    // Configure clock generator
+    // Select clock for each channel
+    // 
 }
 
 
@@ -1060,30 +1115,189 @@ void pwmInit() {
 // ADC Functions
 /////////////////////////////////////////////////////////////////////
 
-#define BITS_12 0
-#define BITS_10 1
+#define CH0  0
+#define CH1  1
+#define CH2  2
+#define CH3  3
+#define CH4  4
+#define CH5  5
+#define CH6  6
+#define CH7  7
+#define CH8  8
+#define CH9  9
+#define CH15 15
 
-#define GAIN_X1 0
-#define GAIN_X2 2
-#define GAIN_X4 3
+#define ADC_BITS_12 0
+#define ADC_BITS_10 1
+
+#define ADC_GAIN_X1 0
+#define ADC_GAIN_X2 2
+#define ADC_GAIN_X4 3
+
+#define ADC_OFFSET_ON  1
+#define ADC_OFFSET_OFF 0
+
+#define ADC_CH0_PIN  PA17
+#define ADC_CH1_PIN  PA18
+#define ADC_CH2_PIN  PA19
+#define ADC_CH3_PIN  PA20
+#define ADC_CH4_PIN  PB0
+#define ADC_CH5_PIN  PB1
+#define ADC_CH6_PIN  PB2
+#define ADC_CH7_PIN  PB3
+#define ADC_CH8_PIN  PA21
+#define ADC_CH9_PIN  PA22
+
+#define ADC_VREF 3.3
+
+#define ADC_DMAX_10 1023
+#define ADC_DMAX_12 4095
+
+#define ADC_FUNC PERIPH_D
 
 // ADC Clock defaults to 2 MHz; 1 MHz to 20 MHz is allowed
 void adcInit(uint32_t resolution) {
-    ADC_REGS->ADC_MR.LOWRES = resolution;
-    ADC_REGS->ADC_MR.ANACH = 1;
+    ADC_REGS->ADC_MR.LOWRES = resolution; // Set resolution
+    ADC_REGS->ADC_MR.ANACH = 1; // Allow channels to have independent settings
 }
 
-// Set offset to 1 to center the analog signal on Vrefin/2 prior to gain
+// Set offset to 1 to center the analog signal on (G-1)Vrefin/2 prior to gain
 void adcChannelInit(int channel, int gain, int offset) {
-    ADC_REGS->ADC_CHER |= (1 << channel);
+    // Set the channel's PIO pin to perform its ADC function
+    switch (channel) {
+        case CH0:
+            pinMode(ADC_CH0_PIN, ADC_FUNC); break;
+        case CH1:
+            pinMode(ADC_CH1_PIN, ADC_FUNC); break;
+        case CH2:
+            pinMode(ADC_CH2_PIN, ADC_FUNC); break;
+        case CH3:
+            pinMode(ADC_CH3_PIN, ADC_FUNC); break;
+        case CH4:
+            pinMode(ADC_CH4_PIN, ADC_FUNC); break;
+        case CH5:
+            pinMode(ADC_CH5_PIN, ADC_FUNC); break;
+        case CH6:
+            pinMode(ADC_CH6_PIN, ADC_FUNC); break;
+        case CH7:
+            pinMode(ADC_CH7_PIN, ADC_FUNC); break;
+        case CH8:
+            pinMode(ADC_CH8_PIN, ADC_FUNC); break;
+        case CH9:
+            pinMode(ADC_CH9_PIN, ADC_FUNC); break;
+        case CH15:
+            break;
+    }
+    ADC_REGS->ADC_CHER |= (1 << channel); // Enable the ADC channel
+
+    // Set the gain
     ADC_REGS->ADC_CGR |= (gain << (2*channel));
-    ADC_REGS->ADC_CGR &= ~(gain << (2*channel));
+    ADC_REGS->ADC_CGR &= ~((~gain & 0b11) << (2*channel));
+
+    // Set the offset
     ADC_REGS->ADC_COR |= (offset << channel);
+    ADC_REGS->ADC_COR &= ~((~offset & 0b1) << channel);
+}
+
+float adcRead(int channel) {
+    ADC_REGS->ADC_CR.START = 1; // Start conversion
+    while (!((ADC_REGS->ADC_ISR >> channel) & 1)); // Wait for conversion
+    int d = ADC_REGS->ADC_CDR[channel];
+    int dMax = (ADC_REGS->ADC_MR.LOWRES) ? ADC_DMAX_10 : ADC_DMAX_12;
+    return (((float) d) / dMax) * ADC_VREF;
 }
 
 
-int adcRead(int channel) {
-    return ADC_REGS->ADC_CDR[channel];
+/////////////////////////////////////////////////////////////////////
+// RTC Functions
+/////////////////////////////////////////////////////////////////////
+
+// In 12-hour mode
+void rtcInit() {
+    RTC_REGS->RTC_MR.HRMOD = 1; // Selects 12-hour mode
+}
+
+void rtcUpdateTime(uint32_t sec, uint32_t min, uint32_t hour, uint32_t ampm) {
+    while ((!RTC_REGS->RTC_SR.SEC));
+    RTC_REGS->RTC_CR.UPDTIM = 1;
+    while (!(RTC_REGS->RTC_SR.ACKUPD));
+    RTC_REGS->RTC_SCCR.ACKCLR = 1;
+
+    RTC_REGS->RTC_TIMR.SEC = sec;
+    RTC_REGS->RTC_TIMR.MIN = min;
+    RTC_REGS->RTC_TIMR.HOUR = hour;
+    RTC_REGS->RTC_TIMR.AMPM = ampm;
+
+    RTC_REGS->RTC_CR.UPDTIM = 0;
+    RTC_REGS->RTC_SR.SEC = 0;
+}
+
+void rtcUpdateDate(uint32_t cent, uint32_t year, uint32_t month,
+    uint32_t day, uint32_t date) {
+    while ((!RTC_REGS->RTC_SR.SEC));
+    RTC_REGS->RTC_CR.UPDCAL = 1;
+    while (!(RTC_REGS->RTC_SR.ACKUPD));
+    RTC_REGS->RTC_SCCR.ACKCLR = 1;
+
+    RTC_REGS->RTC_CALR.CENT = cent;
+    RTC_REGS->RTC_CALR.YEAR = year;
+    RTC_REGS->RTC_CALR.MONTH = month;
+    RTC_REGS->RTC_CALR.DAY = day;
+    RTC_REGS->RTC_CALR.DATE = date;
+    
+    RTC_REGS->RTC_CR.UPDCAL = 0;
+    RTC_REGS->RTC_SR.SEC = 0;
+}
+
+int rtcReadSec() {
+    int units = (RTC_REGS->RTC_TIMR.SEC) & 0xF;
+    int tens = (RTC_REGS->RTC_TIMR.SEC) >> 4;
+    return 10*tens + units;
+}
+
+int rtcReadMin() {
+    int units = (RTC_REGS->RTC_TIMR.MIN) & 0xF;
+    int tens = (RTC_REGS->RTC_TIMR.MIN) >> 4;
+    return 10*tens + units;
+}
+
+int rtcReadHour() {
+    int units = (RTC_REGS->RTC_TIMR.HOUR) & 0xF;
+    int tens = (RTC_REGS->RTC_TIMR.HOUR) >> 4;
+    return 10*tens + units;
+}
+
+int rtcReadAmPm() {
+    return RTC_REGS->RTC_TIMR.AMPM;
+}
+
+int rtcReadCent() {
+    int units = (RTC_REGS->RTC_CALR.CENT) & 0xF;
+    int tens = (RTC_REGS->RTC_CALR.CENT) >> 4;
+    return 10*tens + units;
+}
+
+int rtcReadYear() {
+    int units = (RTC_REGS->RTC_CALR.YEAR) & 0xF;
+    int tens = (RTC_REGS->RTC_CALR.YEAR) >> 4;
+    return 10*tens + units;
+}
+
+int rtcReadMonth() {
+    int units = (RTC_REGS->RTC_CALR.MONTH) & 0xF;
+    int tens = (RTC_REGS->RTC_CALR.MONTH) >> 4;
+    return 10*tens + units;
+}
+
+// The coding of the number (which number represents which da) is arbitrary
+int rtcReadDay() {
+    return RTC_REGS->RTC_CALR.DAY;
+}
+
+int rtcReadDate() {
+    int units = (RTC_REGS->RTC_CALR.DATE) & 0xF;
+    int tens = (RTC_REGS->RTC_CALR.DATE) >> 4;
+    return 10*tens + units;
 }
 
 
