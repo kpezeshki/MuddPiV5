@@ -27,6 +27,7 @@
 //Importing required libraries
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
+#include <ESP8266WebServer.h>
 
 //defining start and end HTML tags
 const String htmlStart = "<!DOCTYPE html><html>";
@@ -83,48 +84,30 @@ void loop() {
   //Wait for a new connection
   //Serial.println("waiting for connection");
   WiFiClient webClient = server.available();
-  //If a client has connected, we wait for a request
-  if (webClient) {
-    fetchWebpage = true;
-    Serial.println("\nClient Connected");
-    while (webClient.connected()) {
-      //Reading available bytes from the client if available
-      if (webClient.available()) {
-        char byteIn = webClient.read();
-        request += byteIn;
-
-        //if the line is only a line feed, we have reached the end of the client request and will therefore send a response
-        //This requires sending a request for a new webpage to the MCU
-        if (byteIn == '\n') {
-          if (currentLine.length() == 0) {
-            //transmitting the response
-            //transmitting HTTP header and content type
-            Serial.println("Transmitting webpage");
-            webClient.println("HTTP/1.1 200 OK");
-            webClient.println("Content-type:text/html");
-            webClient.println("Connection: close");
-            webClient.println();
-            //transmitting the full webpage
-            webClient.println(webpage);
-            //transmitting an extra newline to catch transmission termination errors
-            //webClient.println();
-            break; //disconnect from the client by breaking from while loop
-          }
-          else {
-            currentLine = "";
-          }
-        }
-        else if (byteIn != '\r') {
-          currentLine += byteIn;
-        }
-      }
-    }
-    //ending the transaction
-    parsedRequest = parseRequest(request);
-    request = "";
-    webClient.stop();
-    Serial.println("Client disconnected");
+  //If a client has connected, we wait for a request, otherwise restart the loop
+  if (!webClient) {
+    return;
   }
+  fetchWebpage = true;
+  Serial.println("\nClient Connected");
+
+  //readint request from the client
+  request = webClient.readStringUntil('\r');
+
+  //transmitting the response
+  //transmitting HTTP header and content type
+  Serial.println("Transmitting webpage");
+  webClient.println("HTTP/1.1 200 OK");
+  webClient.println("Content-type:text/html");
+  webClient.println("Connection: close");
+  webClient.println();
+  //transmitting the full webpage
+  webClient.println(webpage);
+
+  //ending the transaction
+  webClient.flush();
+  parsedRequest = parseRequest(request);
+  Serial.println("Client disconnected");
   //we update the webpage after the client has disconnected to prevent any timeout errors
   if (fetchWebpage) {
     fetchWebpage = false;

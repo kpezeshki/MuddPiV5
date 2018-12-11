@@ -8,22 +8,22 @@
 #include "easySamIO.h"
 #include <string.h>
 #define LED_PIN 17
-#define STATUS_PIN 18
+#define TRANSMIT_PIN 18
 
 const char* webpageStart = "<!DOCTYPE html><html>\n    <head>\n        <title>E155 Web Server Demo Webpage</title>\n        <meta http-equiv=\"refresh\" content=\"5\">\n    </head>\n    <body>\n        <h1>E155 Web Server Demo Webpage</h1>\n        <p>Current Microcontroller Time:</p>\n        ";
-const char* webpageEnd   = "\n        <p>LED Control:</p>\n        <form action=\"ledon\">\n            <input type=\"submit\" value=\"Turn the LED on!\" />\n        </form>\n        <form action=\"ledoff\">\n                <input type=\"submit\" value=\"Turn the LED off!\" />\n        </form>\n    </body>\n</html>\n";
+const char* webpageEnd   = "\n        <p>LED Control:</p>\n        <form action=\"on\">\n            <input type=\"submit\" value=\"Turn the LED on!\" />\n        </form>\n        <form action=\"off\">\n                <input type=\"submit\" value=\"Turn the LED off!\" />\n        </form>\n    </body>\n</html>\n";
 const int webpageStartChars = 255;
-const int webpageEndChars = 270;
+const int webpageEndChars = 264;
 
 int main(void) {
     /* Initialize the SAM system */
 	samInit();
 	pinMode(LED_PIN, OUTPUT);
 	digitalWrite(LED_PIN, HIGH);
-	pinMode(STATUS_PIN, OUTPUT);
-	digitalWrite(STATUS_PIN, HIGH);
+	pinMode(TRANSMIT_PIN, OUTPUT);
+	digitalWrite(TRANSMIT_PIN, HIGH);
 	uartInit(4, 25);
-    /* Replace with your application code */
+	
 	int currentRxState = 0;
 	char character;
 	char request[14] = "               ";
@@ -61,10 +61,9 @@ int main(void) {
 			}
 			//processing webpage if both start and end in string
 			if (startInString != 0 && endInString != 0) {
-				digitalWrite(STATUS_PIN, LOW);
 				//two options: ON and OFF
-				int ledOnInString = strstr(request, "ON");
-				int ledOffInString = strstr(request, "OFF");
+				int ledOnInString = strstr(request, "on");
+				int ledOffInString = strstr(request, "off");
 				if(ledOnInString != 0) {
 
 					digitalWrite(LED_PIN, LOW);
@@ -77,9 +76,7 @@ int main(void) {
 					request[i] = ' ';
 				}
 				//transmitting webpage
-				transmitWebpage();
-				digitalWrite(STATUS_PIN, HIGH);
-				
+				transmitWebpage();				
 			}
 			currentRequestChar += 1;
 		}	
@@ -88,6 +85,7 @@ int main(void) {
 }
 
 void transmitWebpage() {
+	digitalWrite(TRANSMIT_PIN, LOW);
 	for (int charCount = 0; charCount < webpageStartChars; charCount++) {
 		uartTx(webpageStart[charCount]);
 		if (webpageStart[charCount] == '\n') {uartTx('\r');}
@@ -96,6 +94,7 @@ void transmitWebpage() {
 		uartTx(webpageEnd[charCount]);
 		if (webpageEnd[charCount] == '\n') {uartTx('\r');}
 	}	
+	digitalWrite(TRANSMIT_PIN, HIGH);
 }
 
 //documentation print statements
