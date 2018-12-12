@@ -47,7 +47,7 @@ String      ip;                   //stores the current IP. Set in the setup func
 //Defining the web server and HTTP request variables
 WiFiServer server(80);           //The server is accessible over port 80
 String     request;              //Stores the client HTTP request
-String     parsedRequest;        //Stores a simplified version of the HTTP request to transmit to the MCU
+String     parsedRequest = "<>"; //Stores a simplified version of the HTTP request to transmit to the MCU
 String     currentLine;          //Stores a semi-parsed version of the HTTP request
 String     webpage = "WAITING FOR DATA";  //The current webpage, updated by the MCU
 
@@ -65,7 +65,7 @@ bool webpageUpdated = true;
 
 //Timer callback. This function will run when the timer reaches the set webpage refresh time
 void timerCallback(void *pArg) {
-      refreshWebpage = true;
+  refreshWebpage = true;
 }
 
 //Setup code. Runs once on program execution before loop code
@@ -74,7 +74,7 @@ void setup() {
   Serial.begin(115200);
   mcuSerial.begin(9600);
   Serial.println("Set up serial connections");
-  
+
   //connecting to WiFi network
   Serial.print("Connecting to network ");
   Serial.println(networkName);
@@ -89,14 +89,15 @@ void setup() {
   Serial.print("Connected to WiFi network with IP: ");
   Serial.println(WiFi.localIP());
   ip = ipToString(WiFi.localIP());
-
-
-  //fetching a new webpage
-  receiveWebPage("<>");
+  Serial.print("AP IP: ");
+  Serial.println(WiFi.softAPIP());
 
   //starting server
   Serial.println("Starting server");
   server.begin();
+
+  //fetching a new webpage
+  receiveWebPage("<>");
 
   //defining the webpage reload timer
   os_timer_setfn(&refreshTimer, timerCallback, NULL);
@@ -107,12 +108,12 @@ void setup() {
 void loop() {
 
   //we update the webpage every 9 seconds to prevent timeout errors
-  if(refreshWebpage & !webpageUpdated) {
+  if (refreshWebpage & !webpageUpdated) {
     refreshWebpage = false;
     webpageUpdated = true;
     webpage = receiveWebPage(parsedRequest);
   }
-  
+
   //Wait for a new connection
   WiFiClient webClient = server.available();
   //If a client has connected, we wait for a request
@@ -153,7 +154,9 @@ void loop() {
       }
     }
     //ending the transaction
-    if (parseRequest(request) != "<>") { parsedRequest = parseRequest(request); }
+    if (parseRequest(request) != "<>") {
+      parsedRequest = parseRequest(request);
+    }
     request = "";
     webClient.stop();
     Serial.println("Client disconnected");
@@ -175,7 +178,7 @@ String parseRequest(String request) {
   Serial.println(request);
   Serial.println("////END Received Request: ");
 
-  //favicon is a common icon formatting scheme that tends 
+  //favicon is a common icon formatting scheme that tends
   if (request.indexOf("favicon.ico") != -1) return "<>";
 
   int getLocation = request.indexOf("GET /");
@@ -189,28 +192,43 @@ String parseRequest(String request) {
   return parsedRequest;
 }
 
+int substringInString(String haystack, String needle) {
+  for (int i = 0; i < haystack.length()-needle.length(); i++) {
+    bool foundsubString = true;
+    for(int j = 0; j < needle.length(); j++) {
+      if( haystack[i+j] != needle[j]) {
+        foundsubString = false;
+      }
+    }
+    if (foundsubString) {return true;}
+  }
+  return false;
+}
+
 //Sends parsedRequest over UART to the MCU and waits for a complete webpage to be returned
 String receiveWebPage(String parsedRequestIn) {
   Serial.println("////START Received Web Page");
-  Serial.print("Transmitting:");
-  Serial.println(parsedRequestIn);
   webpage = ""; //clear webpage in preparation for new webpage to be transmitted
   bool webpageReceived = false;
-  //transmitting the parsed request from the client
-  mcuSerial.print(parsedRequestIn);
-  //wait until the entire webpage has been received
+  bool startReceived = false;
+  bool endReceived = false;
 
+  //transmitting the parsed request from the client
+  Serial.print("Transmitting:");
+  Serial.println(parsedRequestIn);
+  mcuSerial.print(parsedRequestIn);
+
+  //wait until the entire webpage has been received
   while (!webpageReceived) {
     ESP.wdtFeed(); //resetting watchdog timer
     //checking for new serial data, adding to website
-    if (mcuSerial.available()) {
-      String newData = mcuSerial.readString();
-      webpage += newData;
-      bool startReceived = (webpage.indexOf(htmlStart) != -1);
-      bool endReceived = (webpage.indexOf(htmlEnd) != -1);
-      webpageReceived = startReceived && endReceived;
+    while (mcuSerial.available()) {
+      char newData = mcuSerial.read();
+      webpage.concat(newData);;
+    startReceived = (webpage.indexOf(htmlStart) != -1);
+    endReceived = (webpage.indexOf(htmlEnd) != -1);
+    webpageReceived = startReceived && endReceived;
     }
-
   }
   Serial.println("Received webpage");
   Serial.println(webpage);

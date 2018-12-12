@@ -27,12 +27,12 @@
 
 //The webpage is separated into a 'start' and 'end' section. These sandwich the CH2 voltage, which is inserted between the two webpage arrays. The webpage is raw HTML
 //Note: as " terminates the string, we escape the " with \". This is interpreted as the raw character '"' rather than as an escape character
-const char* webpageStart = "<!DOCTYPE html><html>\n    <head>\n        <title>E155 Web Server Demo Webpage</title>\n        <meta http-equiv=\"refresh\" content=\"120\">\n    </head>\n    <body>\n        <h1>E155 Web Server Demo Webpage</h1>\n        <p>Current Microcontroller Time:</p>\n        ";
+const char* webpageStart = "<!DOCTYPE html><html>\n    <head>\n        <title>E155 Web Server Demo Webpage</title>\n            </head>\n    <body>\n        <h1>E155 Web Server Demo Webpage</h1>\n        <p>Current Microcontroller ADC: </p>\n        ";
 //ADC CH2 voltage is printed between these
 const char* webpageEnd   = "\n        <p>LED Control:</p>\n        <form action=\"on\">\n            <input type=\"submit\" value=\"Turn the LED on!\" />\n        </form>\n        <form action=\"off\">\n                <input type=\"submit\" value=\"Turn the LED off!\" />\n        </form>\n    </body>\n</html>\n";
 
 //as we do not dynamically calculate webpage size for the constant start and end arrays, it is given as constant
-const int webpageStartChars = 257;
+const int webpageStartChars = 215;
 const int webpageEndChars = 264;
 
 int main(void) {
@@ -119,7 +119,7 @@ void transmitWebpage() {
 	char ch2VoltageStr[VOLTAGE_CHARS_TO_TRANSMIT];
 	ch2Voltage = adcRead(CH2);
 	//converting ADC voltage as a float to a string
-	snprintf(ch2VoltageStr, VOLTAGE_CHARS_TO_TRANSMIT, "%f", 5555);
+	//snprintf(ch2VoltageStr, VOLTAGE_CHARS_TO_TRANSMIT, "%f", 5555);
 	//Transmitting the voltage string to the webpage
 	for (int charCount = 0; charCount < VOLTAGE_CHARS_TO_TRANSMIT; charCount++) {
 		uartTx(ch2VoltageStr[charCount]);
