@@ -163,7 +163,7 @@ void spiInit(uint32_t clkdivide, uint32_t cpol, uint32_t ncpha) {
     Please read the SPI User Interface section of the datasheet for more advanced configuration features
     */
 
-   //Initially assigning SPI pins (PA11-PA14) to peripheral A (SPI). Pin mapping given in p38-p39
+    //Initially assigning SPI pins (PA11-PA14) to peripheral A (SPI). Pin mapping given in p38-p39
     pioPinMode(PIO_PA11, PIO_PERIPH_A);
     pioPinMode(PIO_PA12, PIO_PERIPH_A);
     pioPinMode(PIO_PA13, PIO_PERIPH_A);
@@ -173,20 +173,18 @@ void spiInit(uint32_t clkdivide, uint32_t cpol, uint32_t ncpha) {
     SPI->SPI_CR.SPIEN = 1;
 
     //next setting the SPI mode register (p601) with the following:
-        //master mode
-        //fixed peripheral select
-        //chip select lines directly connected to peripheral device
-        //mode fault detection enabled
-        //WDRBT disabled
-        //LLB disabled
-        //PCS = 0000 (Peripheral 0 selected), means NPCS[3:0] = 1110
-        SPI->SPI_MR.MSTR = 1;
+    //master mode
+    //fixed peripheral select
+    //chip select lines directly connected to peripheral device
+    //mode fault detection enabled
+    //WDRBT disabled
+    //LLB disabled
+    //PCS = 0000 (Peripheral 0 selected), means NPCS[3:0] = 1110
+    SPI->SPI_MR.MSTR = 1;
 
     //next setting the chip select register for peripheral 0 (p610)
     //ignoring delays
-
-    //REG_SPI_CSR = (cpol<<0) | (ncpha<<1) | (clkdivide << 16);
-        SPI->SPI_CSR0.SCBR = 0xFF;
+    SPI->SPI_CSR0.SCBR = (cpol<<0) | (ncpha<<1) | (clkdivide << 16);
 }
 
 char spiSendReceive(char send) {
