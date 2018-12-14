@@ -1,5 +1,5 @@
 /*
- * uartTest.c
+ * lab6Demo.c
  *
  * Created: 12/9/2018 7:21:32 PM
  * Author : Kaveh Pezeshki and Christopher Ferrarin
