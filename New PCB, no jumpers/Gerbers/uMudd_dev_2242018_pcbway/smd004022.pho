@@ -1,0 +1,112 @@
+*
+*
+G04 PADS VX.2.3 Build Number: 9191294 generated Gerber (RS-274-X) file*
+G04 PC Version=2.1*
+*
+%IN "uMuddMarkVLayout_3_osci"*%
+*
+%MOIN*%
+*
+%FSLAX35Y35*%
+*
+*
+*
+*
+G04 PC Standard Apertures*
+*
+*
+G04 Thermal Relief Aperture macro.*
+%AMTER*
+1,1,$1,0,0*
+1,0,$1-$2,0,0*
+21,0,$3,$4,0,0,45*
+21,0,$3,$4,0,0,135*
+%
+*
+*
+G04 Annular Aperture macro.*
+%AMANN*
+1,1,$1,0,0*
+1,0,$2,0,0*
+%
+*
+*
+G04 Odd Aperture macro.*
+%AMODD*
+1,1,$1,0,0*
+1,0,$1-0.005,0,0*
+%
+*
+*
+G04 PC Custom Aperture Macros*
+*
+*
+*
+*
+*
+*
+G04 PC Aperture Table*
+*
+%ADD010C,0.001*%
+%ADD017R,0.02756X0.12598*%
+%ADD018R,0.02756X0.16535*%
+%ADD027C,0.01*%
+*
+*
+*
+*
+G04 PC Circuitry*
+G04 Layer Name uMuddMarkVLayout_3_osci - circuitry*
+%LPD*%
+*
+*
+G04 PC Custom Flashes*
+G04 Layer Name uMuddMarkVLayout_3_osci - flashes*
+%LPD*%
+*
+*
+G04 PC Circuitry*
+G04 Layer Name uMuddMarkVLayout_3_osci - circuitry*
+%LPD*%
+*
+G54D10*
+G54D17*
+G01X1962598Y1845748D03*
+G54D18*
+X1966535Y1843780D03*
+X1970472D03*
+X1974409D03*
+X1978346D03*
+X1982283D03*
+X1986220D03*
+X1990157D03*
+X1994094D03*
+X1998031D03*
+X2001969D03*
+X2013780D03*
+X2017717D03*
+X2021654D03*
+X2025591D03*
+X2029528D03*
+X2033465D03*
+X2037402D03*
+G54D27*
+X1900000Y2472000D02*
+Y1870000D01*
+X1960000*
+Y1830000*
+X2004700*
+Y1860000*
+X2011000D02*
+G75*
+G03X2004700I-3150J0D01*
+G01X2011000D02*
+Y1830000D01*
+X2040000*
+Y1870000*
+X2091000*
+Y2472000*
+X1900000*
+G74*
+X0Y0D02*
+M02*
