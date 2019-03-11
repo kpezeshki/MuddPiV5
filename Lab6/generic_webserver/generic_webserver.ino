@@ -34,13 +34,14 @@
 //Importing required libraries
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
+#define mcuSerial Serial
 
 //defining start and end HTML tags
 const String htmlStart = "<!DOCTYPE html><html>";
 const String htmlEnd = "</html>";
 
 //Defining network information
-const char* networkName = "CINE"; //set this to the selected network SSID
+const char* networkName = "ESPTest"; //set this to the selected network SSID
 const char* password    = NULL;   //set this to a non-null value if selected network requires authentication
 String      ip;                   //stores the current IP. Set in the setup function
 
@@ -52,7 +53,7 @@ String     currentLine;          //Stores a semi-parsed version of the HTTP requ
 String     webpage = "WAITING FOR DATA";  //The current webpage, updated by the MCU
 
 //Defining the softwareSerial interface
-SoftwareSerial mcuSerial(14, 15);
+//SoftwareSerial mcuSerial(5, 4);
 
 extern "C" {
 #include "user_interface.h"
@@ -68,32 +69,114 @@ void timerCallback(void *pArg) {
   refreshWebpage = true;
 }
 
+//Converts an IP address to a String
+String ipToString(IPAddress address)
+{
+  return String(address[0]) + "." +
+         String(address[1]) + "." +
+         String(address[2]) + "." +
+         String(address[3]);
+}
+
+//Parses an input http request as specified in "Abbreviated URL Explanation"
+String parseRequest(String request) {
+  //Serial.print("////START Received Request: ");
+  //Serial.println(request);
+  //Serial.println("////END Received Request: ");
+
+  //favicon is a common icon formatting scheme that tends
+  if (request.indexOf("favicon.ico") != -1) return "<>";
+
+  int getLocation = request.indexOf("GET /");
+  int httpLocation = request.indexOf(" HTTP");
+
+  String parsedRequest = "<" + request.substring(getLocation + 5, httpLocation) + ">";
+
+  //Serial.print("Reduced URL: '");
+  //Serial.print(parsedRequest);
+  //Serial.println("'");
+  return parsedRequest;
+}
+
+int substringInString(String haystack, String needle) {
+  for (int i = 0; i < haystack.length() - needle.length(); i++) {
+    bool foundsubString = true;
+    for (int j = 0; j < needle.length(); j++) {
+      if ( haystack[i + j] != needle[j]) {
+        foundsubString = false;
+      }
+    }
+    if (foundsubString) {
+      return true;
+    }
+  }
+  return false;
+}
+
+//Sends parsedRequest over UART to the MCU and waits for a complete webpage to be returned
+String receiveWebPage(String parsedRequestIn) {
+  //Serial.println("////START Received Web Page");
+  webpage = ""; //clear webpage in preparation for new webpage to be transmitted
+  bool webpageReceived = false;
+  bool startReceived = false;
+  bool endReceived = false;
+
+  //transmitting the parsed request from the client
+  //Serial.print("Transmitting:");
+  //Serial.println(parsedRequestIn);
+  mcuSerial.print(parsedRequestIn);
+
+  //wait until the entire webpage has been received
+  unsigned long lastByteTime = millis();
+  while (!webpageReceived) {
+    yield();//ESP.wdtFeed(); //resetting watchdog timer
+    //checking for new serial data, adding to website
+    while (mcuSerial.available()) {
+      char newData = mcuSerial.read();
+      //Serial.print(newData);
+      webpage.concat(newData);
+      startReceived = (webpage.indexOf(htmlStart) != -1);
+      endReceived = (webpage.indexOf(htmlEnd) != -1);
+      webpageReceived = startReceived && endReceived;
+      lastByteTime = millis();
+    }
+    if (millis() > lastByteTime+10) break;
+  }
+  //Serial.println("Received webpage");
+  //Serial.println(webpage);
+  //Serial.println("////END Received Web Page");
+  return webpage;
+}
+
+
 //Setup code. Runs once on program execution before loop code
 void setup() {
   //starting the debug and MCU serial connections
-  Serial.begin(115200);
+  //Serial.begin(115200);
   mcuSerial.begin(9600);
-  Serial.println("Set up serial connections");
+  delay(1000);
+  //Serial.println("Set up serial connections");
 
+  delay(1000);
   //connecting to WiFi network
-  Serial.print("Connecting to network ");
-  Serial.println(networkName);
-  Serial.print("With password ");
-  Serial.println(password);
+  //Serial.print("Connecting to network ");
+  //Serial.println(networkName);
+  //Serial.print("With password ");
+  //Serial.println(password);
   WiFi.begin(networkName, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Attempting connection...");
+    //Serial.println("Attempting connection...");
   }
   //connected to the network. Printing status information
-  Serial.print("Connected to WiFi network with IP: ");
-  Serial.println(WiFi.localIP());
+  //Serial.print("Connected to WiFi network with IP: ");
+  //Serial.println(WiFi.localIP());
   ip = ipToString(WiFi.localIP());
-  Serial.print("AP IP: ");
-  Serial.println(WiFi.softAPIP());
+  //Serial.print("AP IP: ");
+  //Serial.println(WiFi.softAPIP());
 
   //starting server
-  Serial.println("Starting server");
+  //Serial.println("Starting server");
   server.begin();
 
   //fetching a new webpage
@@ -101,7 +184,7 @@ void setup() {
 
   //defining the webpage reload timer
   os_timer_setfn(&refreshTimer, timerCallback, NULL);
-  os_timer_arm(&refreshTimer, 10000, true); //fetches a new webpage every 10 seconds
+  os_timer_arm(&refreshTimer, 1000, true); //fetches a new webpage every 10 seconds
 }
 
 //Main program. Runs repeatedly after setup code
@@ -120,7 +203,7 @@ void loop() {
   if (webClient) {
     webpageUpdated = false;
     currentLine = "";
-    Serial.println("\nClient Connected");
+    //Serial.println("\nClient Connected");
     while (webClient.connected()) {
       //Reading available bytes from the client if available
       if (webClient.available()) {
@@ -133,7 +216,7 @@ void loop() {
           if (currentLine.length() == 0) {
             //transmitting the response
             //transmitting HTTP header and content type
-            Serial.println("Transmitting webpage");
+            //Serial.println("Transmitting webpage");
             webClient.println("HTTP/1.1 200 OK");
             webClient.println("Content-type:text/html");
             webClient.println("Connection: close");
@@ -159,79 +242,6 @@ void loop() {
     }
     request = "";
     webClient.stop();
-    Serial.println("Client disconnected");
+    //Serial.println("Client disconnected");
   }
-}
-
-//Converts an IP address to a String
-String ipToString(IPAddress address)
-{
-  return String(address[0]) + "." +
-         String(address[1]) + "." +
-         String(address[2]) + "." +
-         String(address[3]);
-}
-
-//Parses an input http request as specified in "Abbreviated URL Explanation"
-String parseRequest(String request) {
-  Serial.print("////START Received Request: ");
-  Serial.println(request);
-  Serial.println("////END Received Request: ");
-
-  //favicon is a common icon formatting scheme that tends
-  if (request.indexOf("favicon.ico") != -1) return "<>";
-
-  int getLocation = request.indexOf("GET /");
-  int httpLocation = request.indexOf(" HTTP");
-
-  String parsedRequest = "<" + request.substring(getLocation + 5, httpLocation) + ">";
-
-  Serial.print("Reduced URL: '");
-  Serial.print(parsedRequest);
-  Serial.println("'");
-  return parsedRequest;
-}
-
-int substringInString(String haystack, String needle) {
-  for (int i = 0; i < haystack.length()-needle.length(); i++) {
-    bool foundsubString = true;
-    for(int j = 0; j < needle.length(); j++) {
-      if( haystack[i+j] != needle[j]) {
-        foundsubString = false;
-      }
-    }
-    if (foundsubString) {return true;}
-  }
-  return false;
-}
-
-//Sends parsedRequest over UART to the MCU and waits for a complete webpage to be returned
-String receiveWebPage(String parsedRequestIn) {
-  Serial.println("////START Received Web Page");
-  webpage = ""; //clear webpage in preparation for new webpage to be transmitted
-  bool webpageReceived = false;
-  bool startReceived = false;
-  bool endReceived = false;
-
-  //transmitting the parsed request from the client
-  Serial.print("Transmitting:");
-  Serial.println(parsedRequestIn);
-  mcuSerial.print(parsedRequestIn);
-
-  //wait until the entire webpage has been received
-  while (!webpageReceived) {
-    ESP.wdtFeed(); //resetting watchdog timer
-    //checking for new serial data, adding to website
-    while (mcuSerial.available()) {
-      char newData = mcuSerial.read();
-      webpage.concat(newData);;
-    startReceived = (webpage.indexOf(htmlStart) != -1);
-    endReceived = (webpage.indexOf(htmlEnd) != -1);
-    webpageReceived = startReceived && endReceived;
-    }
-  }
-  Serial.println("Received webpage");
-  Serial.println(webpage);
-  Serial.println("////END Received Web Page");
-  return webpage;
 }

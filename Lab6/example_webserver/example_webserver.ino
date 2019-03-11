@@ -39,7 +39,7 @@
                              
 
  //Defining network information
- const char* networkName = "CINE";
+ const char* networkName = "ESPTest";
  const char* password = NULL; 
 
  //Defining the web server and HTTP request variables

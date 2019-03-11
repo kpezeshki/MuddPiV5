@@ -9,7 +9,7 @@
 
 
 // Replace with your network credentials
-const char* ssid     = "CINE";
+const char* ssid     = "ESPTest";
 const char* password = NULL;
 
 //defining start and end HTML tags
@@ -47,12 +47,13 @@ void setup() {
     Serial.print(".");
   }
 
-  receiveWebPage("<>");
+  //receiveWebPage("<>");
   // Print local IP address and start web server
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  delay(1000);
   server.begin();
 }
 
