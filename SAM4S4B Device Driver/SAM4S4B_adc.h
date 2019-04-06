@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2019
  * 
  * Contains base address locations, register structs, definitions, and functions for the ADC
  * (Analog-to-Digital Converter) peripheral of the SAM4S4B microcontroller. */
@@ -155,14 +155,16 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADC Functions
+// ADC User Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* Enables the ADC peripheral and initializes its resolution
  *    -- resolution: an ADC resolution ID, e.g. ADC_MR_LOWRES_BITS_10
- * Note: the ADC clock defaults to MCK_FREQ / 2 = 2 MHz; 1 MHz to 20 MHz is allowed. */
+ * Note: the ADC clock defaults to MCK_FREQ / 2 = 2 MHz; 1 MHz to 20 MHz is possible with a 
+ * faster clock. */
 void adcInit(uint32_t resolution) {
     pmcEnablePeriph(PMC_ID_ADC);
+    pioInit();
 
     ADC->ADC_MR.LOWRES = resolution; // Set resolution
     ADC->ADC_MR.ANACH = 1; // Allow channels to have independent settings
@@ -174,7 +176,7 @@ void adcInit(uint32_t resolution) {
  *    -- offset: an ADC offset ID, e.g. ADC_COR_OFFSET_ON. Set the offset to 1 to center the analog
  *       signal on (Gain - 1)*Vref/2 prior to gain */
 void adcChannelInit(int channel, int gain, int offset) {
-    // Set the channel's PIO pin to perform its ADC function
+    // Set the channel's PIO pin to perform its ADC function.
     switch (channel) {
         case ADC_CH0: pioPinMode(ADC_CH0_PIN, ADC_FUNC); break;
         case ADC_CH1: pioPinMode(ADC_CH1_PIN, ADC_FUNC); break;

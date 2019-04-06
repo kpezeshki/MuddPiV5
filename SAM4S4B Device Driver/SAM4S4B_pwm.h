@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2019
  * 
  * Contains base address locations, register structs, definitions, and functions for the PWM
  * (Pulse Width Modulation Controller) peripheral of the SAM4S4B microcontroller. */
@@ -172,7 +172,7 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// PWM Functions
+// PWM User Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* Enables the PWM peripheral and initializes its frequency, period, and duty cycle. 
@@ -181,12 +181,13 @@ typedef struct {
  *    -- period: the desired frequency of the PWM waveform in number of clock periods
  *    -- dutyCycle: the desired duty cycle of the PWM waveform in number of waveform periods
  * Note: the actual frequency of the PWM waveform is given by freq / period, where 
- * 0 < period < (2^16 = 65536). The higher the period,the more resolution for the duty cycle, 
+ * 0 < period < (2^16 = 65536). The higher the period, the more resolution for the duty cycle, 
  * which is given by Duty Cycle = dutyCycle / period, where 0 < period < (2^16 = 65536). Note that
  * 15.319 Hz <= freq <= 4 MHz based on allowable clock divisions. The alignment defaults to
- * left-aligned, and so is not set. Requires pioInit(). */
+ * left-aligned, and so is not set. */
 void pwmInit(int channelID, int freq, uint16_t period, uint16_t dutyCycle) {
     pmcEnablePeriph(PMC_ID_PWM);
+    pioInit();
     
     switch (channelID) {
         case PWM_CH0: pioPinMode(PWM_CH0_PIN, PWM_FUNC); break;
@@ -197,12 +198,10 @@ void pwmInit(int channelID, int freq, uint16_t period, uint16_t dutyCycle) {
 
     PWM->PWM_DIS |= (1 << channelID); // Disables PWM while setting values
 
-    uint32_t preScl[PWM_CLK_PRE_MAX] =
-        {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
+    // Finds prescaler and linear divider values
+    uint32_t preScl[PWM_CLK_PRE_MAX] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
     uint32_t preSclIndex = 0;
     uint32_t linDiv;
-
-    // Finds prescaler and linear divider values
     while (preSclIndex < PWM_CLK_PRE_MAX) {
         linDiv = MCK_FREQ / preScl[preSclIndex] / freq;
         if (linDiv <= PWM_CLK_DIV_MAX) break;
@@ -217,7 +216,7 @@ void pwmInit(int channelID, int freq, uint16_t period, uint16_t dutyCycle) {
         PWM->PWM_CLK.DIVA = 0;
     }
 
-    PWM->PWM_CH[channelID].PWM_CMR.CPRE = PWM_CMR_CPRE_CLKA; // Set clock speed
+    PWM->PWM_CH[channelID].PWM_CMR.CPRE = PWM_CMR_CPRE_CLKA; // Set base clock speed
     PWM->PWM_CH[channelID].PWM_CMR.CPOL = PWM_CMR_CPOL_HIGH; // Set waveform polarity
 
     PWM->PWM_CH[channelID].PWM_CPRD = period; // Set period

@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2019
  * 
  * Contains base address locations, register structs, definitions, and functions for the PMC
  * peripheral (Power Management Controller) of the SAM4S4B microcontroller. */
@@ -33,14 +33,29 @@ typedef struct {
     volatile uint32_t      : 21;
 } PMC_SCER_bits;
 
-// Bit field struct for the PMC_MCFR register
+// Bit field struct for the CKGR_MOR register
+typedef struct {
+    volatile uint32_t MOSCXTEN : 1;
+    volatile uint32_t MOSCXTBY : 1;
+    volatile uint32_t          : 1;
+    volatile uint32_t MOSCRCEN : 1;
+    volatile uint32_t MOSCRCF  : 3;
+    volatile uint32_t          : 1;
+    volatile uint32_t MOSCXTST : 8;
+    volatile uint32_t KEY      : 8;
+    volatile uint32_t MOSCSEL  : 1;
+    volatile uint32_t CFDEN    : 1;
+    volatile uint32_t          : 6;
+} CKGR_MOR_bits;
+
+// Bit field struct for the CKGR_MCFR register
 typedef struct {
     volatile uint32_t MAINF    : 16;
     volatile uint32_t MAINFRDY : 1;
     volatile uint32_t          : 15;
-} PMC_MCFR_bits;
+} CKGR_MCFR_bits;
 
-// Bit field struct fo the PMC_PCK register
+// Bit field struct for the PMC_PCK register
 typedef struct {
     volatile uint32_t CSS  : 3;
     volatile uint32_t      : 1;
@@ -48,42 +63,62 @@ typedef struct {
     volatile uint32_t      : 25;
 } PMC_PCK_bits;
 
+// Bit field struct for the PMC_SR register
+typedef struct {
+    volatile uint32_t MOSCXTS  : 1;
+    volatile uint32_t LOCKA    : 1;
+    volatile uint32_t LOCKB    : 1;
+    volatile uint32_t MCKRDY   : 1;
+    volatile uint32_t          : 3;
+    volatile uint32_t OSCSELS  : 1;
+    volatile uint32_t PCKRDY0  : 1;
+    volatile uint32_t PCKRDY1  : 1;
+    volatile uint32_t PCKRDY2  : 1;
+    volatile uint32_t          : 5;
+    volatile uint32_t MOSCSELS : 1;
+    volatile uint32_t MOSCRCS  : 1;
+    volatile uint32_t CFDEV    : 1;
+    volatile uint32_t CFDS     : 1;
+    volatile uint32_t FOS      : 1;
+    volatile uint32_t          : 11;
+} PMC_SR_bits;
+
 // Peripheral struct for a PMC peripheral
 typedef struct {
-    volatile PMC_SCER_bits PMC_SCER;      // (Pmc Offset: 0x0000) System Clock Enable Register
-    volatile uint32_t      PMC_SCDR;      // (Pmc Offset: 0x0004) System Clock Disable Register
-    volatile uint32_t      PMC_SCSR;      // (Pmc Offset: 0x0008) System Clock Status Register
-    volatile uint32_t      Reserved1[1];
-    volatile uint32_t      PMC_PCER0;     // (Pmc Offset: 0x0010) Peripheral Clock Enable Register 0
-    volatile uint32_t      PMC_PCDR0;     // (Pmc Offset: 0x0014) Peripheral Clock Disable Register 0
-    volatile uint32_t      PMC_PCSR0;     // (Pmc Offset: 0x0018) Peripheral Clock Status Register 0
-    volatile uint32_t      Reserved2[1];
-    volatile uint32_t      CKGR_MOR;      // (Pmc Offset: 0x0020) Main Oscillator Register
-    volatile PMC_MCFR_bits CKGR_MCFR;     // (Pmc Offset: 0x0024) Main Clock Frequency Register
-    volatile uint32_t      CKGR_PLLAR;    // (Pmc Offset: 0x0028) PLLA Register
-    volatile uint32_t      CKGR_PLLBR;    // (Pmc Offset: 0x002C) PLLB Register
-    volatile uint32_t      PMC_MCKR;      // (Pmc Offset: 0x0030) Master Clock Register
-    volatile uint32_t      Reserved3[1];
-    volatile uint32_t      PMC_USB;       // (Pmc Offset: 0x0038) USB Clock Register
-    volatile uint32_t      Reserved4[1];
-    volatile PMC_PCK_bits  PMC_PCK[3];    // (Pmc Offset: 0x0040) Programmable Clock 0 Register
-    volatile uint32_t      Reserved5[5];
-    volatile uint32_t      PMC_IER;       // (Pmc Offset: 0x0060) Interrupt Enable Register
-    volatile uint32_t      PMC_IDR;       // (Pmc Offset: 0x0064) Interrupt Disable Register
-    volatile uint32_t      PMC_SR;        // (Pmc Offset: 0x0068) Status Register
-    volatile uint32_t      PMC_IMR;       // (Pmc Offset: 0x006C) Interrupt Mask Register
-    volatile uint32_t      PMC_FSMR;      // (Pmc Offset: 0x0070) Fast Startup Mode Register
-    volatile uint32_t      PMC_FSPR;      // (Pmc Offset: 0x0074) Fast Startup Polarity Register
-    volatile uint32_t      PMC_FOCR;      // (Pmc Offset: 0x0078) Fault Output Clear Register
-    volatile uint32_t      Reserved6[26];
-    volatile uint32_t      PMC_WPMR;      // (Pmc Offset: 0x00E4) Write Protect Mode Register
-    volatile uint32_t      PMC_WPSR;      // (Pmc Offset: 0x00E8) Write Protect Status Register
-    volatile uint32_t      Reserved7[5];
-    volatile uint32_t      PMC_PCER1;     // (Pmc Offset: 0x0100) Peripheral Clock Enable Register 1
-    volatile uint32_t      PMC_PCDR1;     // (Pmc Offset: 0x0104) Peripheral Clock Disable Register 1
-    volatile uint32_t      PMC_PCSR1;     // (Pmc Offset: 0x0108) Peripheral Clock Status Register 1
-    volatile uint32_t      Reserved8[1];
-    volatile uint32_t      PMC_OCR;       // (Pmc Offset: 0x0110) Oscillator Calibration Register
+    volatile PMC_SCER_bits  PMC_SCER;      // (Pmc Offset: 0x0000) System Clock Enable Register
+    volatile uint32_t       PMC_SCDR;      // (Pmc Offset: 0x0004) System Clock Disable Register
+    volatile uint32_t       PMC_SCSR;      // (Pmc Offset: 0x0008) System Clock Status Register
+    volatile uint32_t       Reserved1[1];
+    volatile uint32_t       PMC_PCER0;     // (Pmc Offset: 0x0010) Peripheral Clock Enable Register 0
+    volatile uint32_t       PMC_PCDR0;     // (Pmc Offset: 0x0014) Peripheral Clock Disable Register 0
+    volatile uint32_t       PMC_PCSR0;     // (Pmc Offset: 0x0018) Peripheral Clock Status Register 0
+    volatile uint32_t       Reserved2[1];
+    volatile uint32_t       CKGR_MOR;      // (Pmc Offset: 0x0020) Main Oscillator Register
+    volatile CKGR_MCFR_bits CKGR_MCFR;     // (Pmc Offset: 0x0024) Main Clock Frequency Register
+    volatile uint32_t       CKGR_PLLAR;    // (Pmc Offset: 0x0028) PLLA Register
+    volatile uint32_t       CKGR_PLLBR;    // (Pmc Offset: 0x002C) PLLB Register
+    volatile uint32_t       PMC_MCKR;      // (Pmc Offset: 0x0030) Master Clock Register
+    volatile uint32_t       Reserved3[1];
+    volatile uint32_t       PMC_USB;       // (Pmc Offset: 0x0038) USB Clock Register
+    volatile uint32_t       Reserved4[1];
+    volatile PMC_PCK_bits   PMC_PCK[3];    // (Pmc Offset: 0x0040) Programmable Clock 0 Register
+    volatile uint32_t       Reserved5[5];
+    volatile uint32_t       PMC_IER;       // (Pmc Offset: 0x0060) Interrupt Enable Register
+    volatile uint32_t       PMC_IDR;       // (Pmc Offset: 0x0064) Interrupt Disable Register
+    volatile PMC_SR_bits    PMC_SR;        // (Pmc Offset: 0x0068) Status Register
+    volatile uint32_t       PMC_IMR;       // (Pmc Offset: 0x006C) Interrupt Mask Register
+    volatile uint32_t       PMC_FSMR;      // (Pmc Offset: 0x0070) Fast Startup Mode Register
+    volatile uint32_t       PMC_FSPR;      // (Pmc Offset: 0x0074) Fast Startup Polarity Register
+    volatile uint32_t       PMC_FOCR;      // (Pmc Offset: 0x0078) Fault Output Clear Register
+    volatile uint32_t       Reserved6[26];
+    volatile uint32_t       PMC_WPMR;      // (Pmc Offset: 0x00E4) Write Protect Mode Register
+    volatile uint32_t       PMC_WPSR;      // (Pmc Offset: 0x00E8) Write Protect Status Register
+    volatile uint32_t       Reserved7[5];
+    volatile uint32_t       PMC_PCER1;     // (Pmc Offset: 0x0100) Peripheral Clock Enable Register 1
+    volatile uint32_t       PMC_PCDR1;     // (Pmc Offset: 0x0104) Peripheral Clock Disable Register 1
+    volatile uint32_t       PMC_PCSR1;     // (Pmc Offset: 0x0108) Peripheral Clock Status Register 1
+    volatile uint32_t       Reserved8[1];
+    volatile uint32_t       PMC_OCR;       // (Pmc Offset: 0x0110) Oscillator Calibration Register
 } Pmc;
 
 // Pointer to a Pmc-sized chunk of memory at the PMC peripheral
@@ -143,9 +178,12 @@ typedef struct {
 // Always reads as 0.
 #define PMC_WPMR_WPKEY_PASSWD (0x504D43U << 8)
 
+// Writing any other value in this field aborts the write operation of the CKGR_MOR register.
+#define CKGR_MOR_KEY_PASSWD 0x37
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// PMC Functions
+// PMC User Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* Routes Master Clock to the desired peripheral, thereby enabling it.
@@ -159,17 +197,41 @@ void pmcEnablePeriph(int periphID) {
  * This is useful for calibrating the Main Clock (which the peripherals indirectly use) if using
  * a reliable crystal oscillator for the slow clock. Returns 0 if the master clock is disabled or
  * if the read value is invalid. The RC oscillator which the Slow Clock uses by default runs at
- * about 32 kHz, but this can vary fairly substantially between boards */
+ * about 32 kHz, but this can vary fairly substantially between boards and over temperatures. */
 int pmcCheckMasterClk() {
     int valid = PMC->CKGR_MCFR.MAINFRDY; // Check if reported value is valid
     return valid ? PMC->CKGR_MCFR.MAINF : 0;
 }
 
-/* Initializes the programmable clock PCK2 for the FPGA to run at 1 MHz */
-void pmcPCK2Init() {
-    PMC->PMC_PCK[2].CSS = PMC_PCK_CSS_MCK; // Set clock source to master clock
-    PMC->PMC_PCK[2].PRES = PMC_PCK_PRES_CLK4; // Divide clock by 4 for 1 MHz
-    PMC->PMC_SCER.PCK2 = 1; // Enable programmable clock 0
+
+/* Turns off both sources to the main oscillator and bypasses it to allow for an external clock
+ * provided between XIN and XOUT. Note: Because the key must be written simultaneously with other
+ * data, a bitfield cannot be used. However, each register modification is accompanied with a 
+ * comment detailing the equivalent bitfield operation, and a bitfield (CKGR_MOS_bits) is provided
+ * in the register defintions section for reference.
+ * 
+ * Note: This function must be REMOVED from samInit() in SAM4S4B.h if an external oscillator is not
+ * provided or else the microcontroller will not function. */
+void pmcMainClkBypass() {
+    uint32_t CKGR_MOR_reg = PMC->CKGR_MOR; // Capture current state of CKGR_MOR register
+
+    // "PMC->CKGR_MOR.KEY = CKGR_MOR_KEY_PASSWD;". Enables writes to this register.
+    CKGR_MOR_reg |= (CKGR_MOR_KEY_PASSWD << 16);
+
+    // "PMC->CKGR_MOR.MOSCXTEN = 0;". Disables the Main Crystal Oscillator.
+    CKGR_MOR_reg &= ~1;
+
+    // "PMC->CKGR_MOR.MOSCXTBY = 1;". Bypasses the Main Crystal Oscillator.
+    CKGR_MOR_reg |= (1 << 1);
+
+    PMC->CKGR_MOR = CKGR_MOR_reg; // Writes the modified CKGR_MOR values to the register
+    while(!(PMC->PMC_SR.MOSCXTS)); // Wait for external clock to stabilize
+    
+    // "PMC->CKGR_MOR.MOSCSEL = 1;". Selects the Main Crystal Oscillator as the main clock.
+    PMC->CKGR_MOR |= ((CKGR_MOR_KEY_PASSWD << 16) | (1 << 24));
+
+    // "PMC->CKGR_MOR.MOSCRCEN = 0;". Disables the Main On-Chip RC Oscillator.
+    CKGR_MOR_reg &= ~(1 << 3);
 }
 
 

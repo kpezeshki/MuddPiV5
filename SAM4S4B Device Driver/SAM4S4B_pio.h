@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2018
  * 
  * Contains base address locations, register structs, definitions, and functions for the PIO
  * (Parallel Input/Output Controller) peripheral of the SAM4S4B microcontroller. */
@@ -127,8 +127,11 @@ typedef struct {
 #define PIO_PERIPH_B  3 // Arbitrary ID for peripheral function B
 #define PIO_PERIPH_C  4 // Arbitrary ID for peripheral function C
 #define PIO_PERIPH_D  5 // Arbitrary ID for peripheral function D
-#define PIO_PULL_DOWN 6 // Arbitrary ID for a pull-down resistor
-#define PIO_FLOATING  7 // Arbitrary ID for neither a pull-up nor a pull-down resistor
+
+// Values which "setting" can take on in pioPinResistor()
+#define PIO_PULL_UP   0 // Arbitrary ID for a pull-up resistor
+#define PIO_PULL_DOWN 1 // Arbitrary ID for a pull-down resistor
+#define PIO_FLOATING  2 // Arbitrary ID for a floating pin (neither resistor is active)
 
 // Pin definitions for every PIO pin, which "pin" can take on in several functions
 #define PIO_PA0  0
@@ -185,14 +188,8 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// PIO Functions
+// PIO Helper Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/* Initializes the PIO peripheral by enabling the Master Clock to PIOA and PIOB. */
-void pioInit() {
-    pmcEnablePeriph(PMC_ID_PIOA);
-    pmcEnablePeriph(PMC_ID_PIOB);
-}
 
 /* Returns the port ID that corresponds to a given pin.
  *    -- pin: a PIO pin ID, e.g. PIO_PA3
@@ -215,24 +212,33 @@ Pio* pioPinToBase(int pin) {
     return pioPortToBase(pioPinToPort(pin));
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PIO User Functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* Initializes the PIO peripheral by enabling the Master Clock to PIOA and PIOB. */
+void pioInit() {
+    pmcEnablePeriph(PMC_ID_PIOA);
+    pmcEnablePeriph(PMC_ID_PIOB);
+}
+
 /* Sets a function (either I/O behavior, peripheral, or setting) of a pin.
  *    -- pin: a PIO pin ID, e.g. PIO_PA3
- *    -- function: a PIO function ID, e.g. PIO_PERIPH_C. While I/O functions (PIO_INPUT, PIO_OUTPUT)
- *       and peripherals (PIO_PERIPH_A - PIO_PERIPH_D) are mutually exclusive, settings 
- *       (PIO_PULL_DOWN, PIO_FLOATING), can always be altered.
- * Note: upon reset, pins are configured as input I/O lines (as opposed to peripheral functions),
- * the peripheral defaults to PIO_PERIPH_A, the pull-up resistor is enabled, and the pull-down
- * resistor is disabled. All other optional pin functions, which are not provided in this driver,
- * are disabled upon reset. Note also that pin PA31 is used for the FPGA clock, and should not be
- * altered */ 
+ *    -- function: a PIO function ID, e.g. PIO_PERIPH_C. I/O functions (PIO_INPUT, PIO_OUTPUT)
+ *       and peripherals (PIO_PERIPH_A - PIO_PERIPH_D) are mutually exclusive.
+ * Note: Upon reset, pins are configured as input I/O lines (as opposed to peripheral functions),
+ * and the peripheral defaults to PIO_PERIPH_A. */
 void pioPinMode(int pin, int function) {
     Pio* port = pioPinToBase(pin);
     int offset = pin % 32;
 
     switch (function) {
         case PIO_INPUT:
-            break; // Do nothing, since this is default behavior
+            port->PIO_PER     |=  (1 << offset); // Sets a pin to be PIO-controlled
+            port->PIO_ODR     |=  (1 << offset); // Configures an I/O line as an input
         case PIO_OUTPUT:
+            port->PIO_PER     |=  (1 << offset); // Sets a pin to be PIO-controlled
             port->PIO_OER     |=  (1 << offset); // Configures an I/O line as an output
             break;
         case PIO_PERIPH_A:
@@ -255,18 +261,39 @@ void pioPinMode(int pin, int function) {
             port->PIO_ABCDSR1 |=  (1 << offset); // Sets the peripheral which controls a pin
             port->PIO_ABCDSR2 |=  (1 << offset); // Sets the peripheral which controls a pin
             break;
+    }
+}
+
+/* Sets the pull-down and pull-up resistors on a PIO pin.
+ *    -- pin: a PIO pin ID, e.g. PIO_PA3
+ *    -- setting: a PIO setting ID, e.g. PIO_PULL_DOWN
+ * Note: Upon reset, pins are configured in pull-up mode (pull-up resistor enabled, pull-down
+ * resistor disabled). All other optional pin settings, which are not provided in this driver,
+ * are disabled upon reset. */
+void pioPinResistor(int pin, int setting) {
+    Pio* port = pioPinToBase(pin);
+    int offset = pin % 32;
+
+    switch (setting) {
+        case PIO_PULL_UP:
+            port->PIO_PUER  |=  (1 << offset); // Enables the pull-up resistor
+            port->PIO_PPDDR |=  (1 << offset); // Disables the pull-down resistor
+            break;
         case PIO_PULL_DOWN:
-            port->PIO_PUDR    |=  (1 << offset); // Disables the pull-up resistor
-            port->PIO_PPDER   |=  (1 << offset); // Enables the pull-down resistor
+            port->PIO_PUDR  |=  (1 << offset); // Disables the pull-up resistor
+            port->PIO_PPDER |=  (1 << offset); // Enables the pull-down resistor
+            break;
         case PIO_FLOATING:
-            port->PIO_PUDR    |=  (1 << offset); // Disables the pull-down resistor
+            port->PIO_PUDR  |=  (1 << offset); // Disables the pull-up resistor
+            port->PIO_PPDDR |=  (1 << offset); // Disables the pull-down resistor
+            break;
     }
 }
 
 /* Reads the digital voltage on a pin configured as an input I/O line.
  *    -- pin: a PIO pin ID, e.g. PIO_PA3
  *    -- return: a PIO value ID, either PIO_HIGH or PIO_LOW */
-int pioReadPin(int pin) {
+int pioDigitalRead(int pin) {
     Pio* port = pioPinToBase(pin);
     int offset = pin % 32;
     return ((port->PIO_PDSR) >> offset) & 1;
@@ -275,21 +302,17 @@ int pioReadPin(int pin) {
 /* Writes a digital voltage to a pin configured as an output I/O line.
  *    -- pin: a PIO pin ID, e.g. PIO_PA3
  *    -- val: a PIO value ID, either PIO_HIGH or PIO_LOW */
-void pioWritePin(int pin, int val) {
+void pioDigitalWrite(int pin, int val) {
     Pio* port = pioPinToBase(pin);
     int offset = pin % 32;
-    if (val) {
-        port->PIO_SODR |= (1 << offset);
-    } else {
-        port->PIO_CODR |= (1 << offset);
-    }
+    if (val) port->PIO_SODR |= (1 << offset);
+    else     port->PIO_CODR |= (1 << offset);
 }
 
 /* Switches the digital voltage on a pin configured as in output I/O line
  *    -- pin: a PIO pin ID, e.g. PIO_PA3 */
 void pioTogglePin(int pin) {
-    int currentVal = pioReadPin(pin);
-    pioWritePin(pin, !currentVal);
+    pioWritePin(pin, !pioReadPin(pin));
 }
 
 

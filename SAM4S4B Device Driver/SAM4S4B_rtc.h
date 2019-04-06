@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2019
  *
  * Contains base address locations, register structs, definitions, and functions for the RTC (Real-
  * Time Clock) peripheral of the SAM4S4B microcontroller. */
@@ -114,7 +114,7 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// RTC Functions
+// RTC User Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* Initializes the RTC peripheral's mode to 12-hour mode (24-hour mode is default).
