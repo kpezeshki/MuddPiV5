@@ -121,7 +121,7 @@ typedef struct {
  *       Baud Rate = MCK_FREQ/(16*CD)
  * Note that pin PA9 is used as receive and pin PA10 is used as transmit. pioInit() must be called
  * first. */
-// *** Discuss keeping CD as is instead of changing to baud rate
+// TODO: Discuss keeping CD as is instead of changing to baud rate
 void uartInit(uint32_t parity, uint16_t CD) {
     pmcEnablePeriph(PMC_ID_UART0);
     pioInit();
@@ -145,7 +145,7 @@ void uartTx(char data) {
 
 /* Checks if a character has been received over UART.
  *    -- return: true if a character has been received; false otherwise */
-bool uartRxReady() {
+int uartRxReady() {
     return UART->UART_SR.RXRDY; // Check if data has been received
 }
 

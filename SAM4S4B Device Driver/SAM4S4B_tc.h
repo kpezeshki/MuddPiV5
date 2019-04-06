@@ -268,7 +268,7 @@ void tcDelayMicroseconds(uint32_t duration) {
  * is the better option. Requires that tcDelayInit() be called previously. */
 void tcDelay(int duration) {
     for (int i = 0; i < duration; i++) {
-        tcDelayMicros(1000);
+        tcDelayMicroseconds(1000);
     }
 }
 
@@ -279,7 +279,7 @@ void tcDelay(int duration) {
  * tcDelayInit() be called previously. */
 void tcDelaySeconds(int duration) {
     for (int i = 0; i < duration; i++) {
-        tcDelayMillis(1000);
+        tcDelay(1000);
     }
 }
 

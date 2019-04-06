@@ -312,7 +312,7 @@ void pioDigitalWrite(int pin, int val) {
 /* Switches the digital voltage on a pin configured as in output I/O line
  *    -- pin: a PIO pin ID, e.g. PIO_PA3 */
 void pioTogglePin(int pin) {
-    pioWritePin(pin, !pioReadPin(pin));
+    pioDigitalWrite(pin, !pioDigitalRead(pin));
 }
 
 
