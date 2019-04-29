@@ -11,9 +11,12 @@
 
 #include "SAM4S4BDeviceDriver\SAM4S4B.h"
 #include <string.h>
+#include <stdlib.h>
 
 #define LED_PIN 18
 #define BUFF_LEN 32
+#define CSB PIO_PA8
+#define LED PIO_PA18
 
 //Defining the web page in several chunks: everything before the current time, and everything after the current time
 //Please see the e155 website for a human-readable version of the file "webpage.html"
@@ -26,11 +29,12 @@ const char* humidityStr = "<p>Current Humidity:</p>";
 const char* webpageEnd   = "</body></html>";
 
 
-// Pressure sensor constants
+// Pressure sensor variables
 
 volatile double temp = 0;
 volatile double press = 0;
 volatile char id = 0;
+volatile long signed int t_fine = 0;
 
 /////////////////////////////////////////////////////////////////
 // Pressure Sensor Provided Constants and Functions
@@ -47,7 +51,6 @@ const short dig_P6 = -7;
 const short dig_P7 = 15500;
 const short dig_P8 = -14600;
 const short dig_P9 = 6000;
-const long signed int t_fine = 0;
 
 // Returns temperature in DegC, double precision. Output value of “51.23” equals 51.23 DegC.
 // t_fine carries fine temperature as global value
@@ -81,6 +84,29 @@ volatile double convertPress (volatile char msb, volatile char lsb, volatile cha
 	return p;
 }
 
+char getNumber(int n){
+  if(n>9) {
+    return n-10+'a';
+  } else {
+    return n+'0';
+  }
+}
+ void itoa2(int n, char * s, int base_n)
+ {
+     int i, sign;
+ 
+     if ((sign = n) < 0)  /* record sign */
+         n = -n;          /* make n positive */
+     i = 0;
+     do {       /* generate digits in reverse order */
+         s[i++] = getNumber(n % base_n);   /* get next digit */
+     } while ((n /= base_n) > 0);     /* delete it */
+     if (sign < 0)
+         s[i++] = '-';
+     s[i] = '\0';
+     //reverse(s);
+ }
+ 
 void BMP280Init(void)
 {
 	// Initialize BMP280
@@ -170,9 +196,12 @@ int main(void)
 		BMP280Read();
 		char temperature[20];
 		char pressure[20];
+		
+		//dtostrf(temp, 10, 2, temperature);
 
-		sprintf(temperature, "%f C", temp);
-		sprintf(pressure, "%f kPa", press);
+		itoa(press, pressure, 2);
+		//sprintf(temperature, "%f C", temp);
+		//sprintf(pressure, "%f kPa", press);
 		
 		//finally, transmit the webpage over UART
 		//transmitting the first section of the webpage
@@ -187,7 +216,7 @@ int main(void)
 		sendString(temperature);
 		
 		sendString(humidityStr);
-		sendString(humidity);
+		sendString(pressure);
 		
 		sendString(webpageEnd);
 		
