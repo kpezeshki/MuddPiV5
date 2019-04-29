@@ -85,9 +85,6 @@ String parseRequest(String request) {
 
   String parsedRequest = "/REQ:" + request.substring(getLocation + 5, httpLocation) + "\n";
 
-  //Serial.print("Reduced URL: '");
-  //Serial.print(parsedRequest);
-  //Serial.println("'");
   return parsedRequest;
 }
 
@@ -122,7 +119,6 @@ String receiveWebPage(String parsedRequestIn) {
     //checking for new serial data, adding to website
     while (mcuSerial.available()) {
       char newData = mcuSerial.read();
-      //Serial.print(newData);
       webpage.concat(newData);
       startReceived = (webpage.indexOf(htmlStart) != -1);
       endReceived = (webpage.indexOf(htmlEnd) != -1);
@@ -149,6 +145,7 @@ void setup() {
   //Serial.println(networkName);
   //Serial.print("With password ");
   //Serial.println(password);
+  
   WiFi.begin(networkName, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
