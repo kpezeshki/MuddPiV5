@@ -122,7 +122,7 @@ String receiveWebPage(String parsedRequestIn, WiFiClient * webClient) {
     while (mcuSerial.available()) {
       yield();
       char newData = mcuSerial.read();
-      webClient->print(newData);
+      //webClient->print(newData);
       webpage.concat(newData);
       lastByteTime = millis();
     }
@@ -208,7 +208,7 @@ void loop() {
             if (parseRequest(request) != "<>") {
               parsedRequest = parseRequest(request);
             }
-            receiveWebPage(parsedRequest, &webClient);
+            webClient.println(receiveWebPage(parsedRequest, &webClient));
             //transmitting an extra newline to catch transmission termination errors
             //webClient.println();
             break; //disconnect from the client by breaking from while loop

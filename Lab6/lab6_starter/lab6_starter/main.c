@@ -244,15 +244,15 @@ int main(void)
 		
 		sendString(ledStr);
 		
-		sendString("<p>Current Temperature:</p>");
-		sendString(temperature);
-		sendString(".");
-		sendString(temperaturept2);
-		sendString(" C");
+		//sendString("<p>Current Temperature:</p>");
+		//sendString(temperature);
+		///sendString(".");
+		//sendString(temperaturept2);
+		//sendString(" C");
 		
-		sendString("<p>Current pressure:</p>");
-		sendString(pressure);
-		sendString(" Pa");
+		//sendString("<p>Current pressure:</p>");
+		//sendString(pressure);
+		///sendString(" Pa");
 
 		sendString("<p>Current light:</p>");
 		sendString(lightStringPt1);
