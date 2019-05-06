@@ -145,7 +145,7 @@ int main(void)
 		press = convertPress(press_msb, press_lsb, press_xlsb);
         light = adcRead(ADC_CH4);
 		
-		char request[BUFF_LEN] = "                  "; //initializing to a known value
+		char request[BUFF_LEN]; //initializing to a known value
 		int  charIndex = 0;
 		while (requestInString(request) == -1) {
 			// Loop if we run out of space
@@ -157,10 +157,10 @@ int main(void)
 		}
 		
 		//the request has been received. now process to determine whether to turn the LED on or off
-		if (inString(request, "ledoff")==1) {
+		if (inString(request, "ledoff")!=-1) {
 			pioDigitalWrite(LED_PIN, PIO_HIGH);
 		}
-		if (inString(request, "ledon")==1) {
+		if (inString(request, "ledon")!=-1) {
 			pioDigitalWrite(LED_PIN, PIO_LOW);
 		}
 		

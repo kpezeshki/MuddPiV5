@@ -17,60 +17,6 @@
 #define CSBMP PIO_PA8
 #define BUFF_LEN 32
 
-/////////////////////////////////////////////////////////////////
-// Solution Functions
-/////////////////////////////////////////////////////////////////
-
-
-void initADC(void)
-{
-	adcInit(ADC_MR_LOWRES_BITS_10);
-	adcChannelInit(ADC_CH4, ADC_CGR_GAIN_X1, ADC_COR_OFFSET_OFF); // Using ADC channel 4 (on pin PIO_PB0)
-}
-
-void initSPI(void)
-{
-	pioPinMode(CSBMP, PIO_OUTPUT);
-	pioDigitalWrite(CSBMP, PIO_HIGH); // Either force the pin high initially or delay long enough for the pull-up resistor to respond
-	spiInit(20, 1, 1); // Divide clock by 10 since max freq is 10 MHz. In (1, 1) mode.
-	
-}
-void initBMP(void)
-{
-	// Initialize BMP280
-	pioDigitalWrite(CSBMP, PIO_LOW);
-	spiSendReceive16(0x742F); // osrs_t = 001, osrs_p = 011, mode = 11
-	spiSendReceive16(0x7510); // t_sb = 000, filter = 100, [0], spi3w_en = 0
-	pioDigitalWrite(CSBMP, PIO_HIGH);
-	
-	// Confirm chip ID
-	pioDigitalWrite(CSBMP, PIO_LOW);
-	spiSendReceive(0xD0);
-	char id = spiSendReceive(0);
-	pioDigitalWrite(CSBMP, PIO_HIGH);
-}
-
-void getTemperatureAndPressure(void)
-{
-	pioDigitalWrite(CSBMP, PIO_LOW);
-	spiSendReceive(0xF7);
-	volatile char press_msb = spiSendReceive(0);
-	volatile char press_lsb = spiSendReceive(0);
-	volatile char press_xlsb = spiSendReceive(0);
-	volatile char temp_msb = spiSendReceive(0);
-	volatile char temp_lsb = spiSendReceive(0);
-	volatile char temp_xlsb = spiSendReceive(0);
-	pioDigitalWrite(CSBMP, PIO_HIGH);
-	
-	temp = convertTemp(temp_msb, temp_lsb, temp_xlsb);
-	press = convertPress(press_msb, press_lsb, press_xlsb);
-}
-
-void getLight(void)
-{
-	light = adcRead(ADC_CH4);
-}
-
 
 /////////////////////////////////////////////////////////////////
 // Measured Quantities
@@ -160,6 +106,7 @@ volatile double convertPress (volatile char msb, volatile char lsb, volatile cha
 	p = p + (var1 + var2 + ((double) dig_P7)) / 16.0;
 	return p;
 }
+
 void updateButton(char request[])
 {
 	//the request has been received. now process to determine whether to turn the LED on or off
@@ -171,6 +118,67 @@ void updateButton(char request[])
 	}
 }
 
+
+
+/////////////////////////////////////////////////////////////////
+// Solution Functions
+/////////////////////////////////////////////////////////////////
+
+
+void initADC(void)
+{
+	adcInit(ADC_MR_LOWRES_BITS_10);
+	adcChannelInit(ADC_CH4, ADC_CGR_GAIN_X1, ADC_COR_OFFSET_OFF); // Using ADC channel 4 (on pin PIO_PB0)
+}
+
+void initSPI(void)
+{
+	pioPinMode(CSBMP, PIO_OUTPUT);
+	pioDigitalWrite(CSBMP, PIO_HIGH); // Either force the pin high initially or delay long enough for the pull-up resistor to respond
+	spiInit(20, 1, 1); // Divide clock by 10 since max freq is 10 MHz. In (1, 1) mode.
+	
+}
+
+void initBMP(void)
+{
+	// Initialize BMP280
+	pioDigitalWrite(CSBMP, PIO_LOW);
+	spiSendReceive16(0x742F); // osrs_t = 001, osrs_p = 011, mode = 11
+	spiSendReceive16(0x7510); // t_sb = 000, filter = 100, [0], spi3w_en = 0
+	pioDigitalWrite(CSBMP, PIO_HIGH);
+	
+	// Confirm chip ID
+	pioDigitalWrite(CSBMP, PIO_LOW);
+	spiSendReceive(0xD0);
+	char id = spiSendReceive(0);
+	pioDigitalWrite(CSBMP, PIO_HIGH);
+}
+
+void getTemperatureAndPressure(void)
+{
+	pioDigitalWrite(CSBMP, PIO_LOW);
+	spiSendReceive(0xF7);
+	volatile char press_msb = spiSendReceive(0);
+	volatile char press_lsb = spiSendReceive(0);
+	volatile char press_xlsb = spiSendReceive(0);
+	volatile char temp_msb = spiSendReceive(0);
+	volatile char temp_lsb = spiSendReceive(0);
+	volatile char temp_xlsb = spiSendReceive(0);
+	pioDigitalWrite(CSBMP, PIO_HIGH);
+	
+	temp = convertTemp(temp_msb, temp_lsb, temp_xlsb);
+	press = convertPress(press_msb, press_lsb, press_xlsb);
+}
+
+void getLight(void)
+{
+	light = adcRead(ADC_CH4);
+}
+
+
+/////////////////////////////////////////////////////////////////
+// Main Function
+/////////////////////////////////////////////////////////////////
 
 int main(void)
 {
@@ -210,20 +218,25 @@ int main(void)
 			while (!uartRxReady());
 			request[charIndex++] = uartRx();
 		}
-		getTemperatureAndPressure();
+		
+			getTemperatureAndPressure();
 		getLight();
-		updateButton(request);	
+		updateButton(request);
 		
 		
 		// vars to print out floats to serial
 		char temperature[20];
 		char temperaturept2[20];
 		char pressure[20];
+		char lightStringPt1[20];
+		char lightStringPt2[20];
 
 		// use integer to string function because float to string is finicky
 		itoa(temp, temperature, 10);
 		itoa((temp*10)-((int)temp)*10, temperaturept2, 10);
 		itoa(press, pressure, 10);
+		itoa(light, lightStringPt1, 10);
+		itoa((light*10)-((int)light)*10, lightStringPt2, 10);
 		
 		//finally, transmit the webpage over UART
 		//transmitting the first section of the webpage
@@ -240,6 +253,12 @@ int main(void)
 		sendString("<p>Current pressure:</p>");
 		sendString(pressure);
 		sendString(" Pa");
+
+		sendString("<p>Current light:</p>");
+		sendString(lightStringPt1);
+		sendString(".");
+		sendString(lightStringPt2);
+		sendString(" volts");
 		
 		sendString(webpageEnd);
 		

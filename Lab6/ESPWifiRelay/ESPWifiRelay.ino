@@ -35,6 +35,7 @@
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
 #define mcuSerial Serial
+#define AP_MODE false
 
 //defining start and end HTML tags
 const String htmlStart = "<!DOCTYPE html><html>";
@@ -78,7 +79,7 @@ String ipToString(IPAddress address)
 //Parses an input http request as specified in "Abbreviated URL Explanation"
 String parseRequest(String request) {
   //favicon is a common icon formatting scheme that tends
-  if (request.indexOf("favicon.ico") != -1) return "<>";
+  if (request.indexOf("fav") != -1) return "<>";
 
   int getLocation = request.indexOf("GET /");
   int httpLocation = request.indexOf(" HTTP");
@@ -104,28 +105,28 @@ int substringInString(String haystack, String needle) {
 }
 
 //Sends parsedRequest over UART to the MCU and waits for a complete webpage to be returned
-String receiveWebPage(String parsedRequestIn) {
+String receiveWebPage(String parsedRequestIn, WiFiClient * webClient) {
   webpage = ""; //clear webpage in preparation for new webpage to be transmitted
-  bool webpageReceived = false;
-  bool startReceived = false;
-  bool endReceived = false; 
-  
+
+
+  // ignore favicon and other requests we don't want
+  if (parsedRequestIn == "<>") return "";
+
+  mcuSerial.flush();
   mcuSerial.print(parsedRequestIn);
 
   //wait until the entire webpage has been received
   unsigned long lastByteTime = millis();
-  while (!webpageReceived) {
-    yield();//ESP.wdtFeed(); //resetting watchdog timer
+  while (true) {
     //checking for new serial data, adding to website
     while (mcuSerial.available()) {
+      yield();
       char newData = mcuSerial.read();
+      webClient->print(newData);
       webpage.concat(newData);
-      startReceived = (webpage.indexOf(htmlStart) != -1);
-      endReceived = (webpage.indexOf(htmlEnd) != -1);
-      webpageReceived = startReceived && endReceived;
       lastByteTime = millis();
     }
-    if (millis() > lastByteTime + 100 || webpage.indexOf("</html>")) break;
+    if (millis() > lastByteTime + 200 || webpage.indexOf("</html>")) break;
   }
   return webpage;
 }
@@ -139,7 +140,6 @@ void setup() {
   delay(1000);
   //Serial.println("Set up serial connections");
 
-  delay(1000);
   //connecting to WiFi network
   //Serial.print("Connecting to network ");
   //Serial.println(networkName);
@@ -151,8 +151,8 @@ void setup() {
   } else {
     WiFi.begin(networkName, password);
     while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Attempting connection...");
+      delay(100);
+      //Serial.println("Attempting connection...");
     }
   }
   //connected to the network. Printing status information
@@ -167,11 +167,7 @@ void setup() {
   server.begin();
 
   //fetching a new webpage
-  receiveWebPage("/REQ:");
-
-  //defining the webpage reload timer
-  os_timer_setfn(&refreshTimer, timerCallback, NULL);
-  os_timer_arm(&refreshTimer, 1000, true); //fetches a new webpage every 10 seconds
+  //receiveWebPage("/REQ:");
 }
 
 //Main program. Runs repeatedly after setup code
@@ -179,9 +175,9 @@ void loop() {
 
   if (AP_MODE) {
     if (WiFi.softAPgetStationNum() > 0) {
-      digitalWrite(LED, HIGH);
+      digitalWrite(2, HIGH);
     } else {
-      digitalWrite(LED, LOW);
+      digitalWrite(2, LOW);
     }
   }
   //Wait for a new connection
@@ -198,7 +194,7 @@ void loop() {
 
         //if the line is only a line feed, we have reached the end of the client request and will therefore send a response
         //This requires sending a request for a new webpage to the MCU
-        if (byteIn == '\n') {
+        if (request.indexOf("HTTP") != -1) {
           if (currentLine.length() == 0) {
             //transmitting the response
             //transmitting HTTP header and content type
@@ -212,8 +208,7 @@ void loop() {
             if (parseRequest(request) != "<>") {
               parsedRequest = parseRequest(request);
             }
-
-            webClient.println(receiveWebPage(parsedRequest));
+            receiveWebPage(parsedRequest, &webClient);
             //transmitting an extra newline to catch transmission termination errors
             //webClient.println();
             break; //disconnect from the client by breaking from while loop

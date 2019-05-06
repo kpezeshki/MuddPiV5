@@ -27,7 +27,7 @@
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
 
-#include "sam4s.h"
+#include "sam3s.h"
 
 /* @cond 0 */
 /**INDENT-OFF**/
@@ -37,47 +37,73 @@ extern "C" {
 /**INDENT-ON**/
 /* @endcond */
 
-/* External oscillator definition, to be overriden by application */
-#define CHIP_FREQ_XTAL_12M (12000000UL)
+/* Clock settings (64MHz) */
+#define SYS_BOARD_OSCOUNT   (CKGR_MOR_MOSCXTST(0x8UL))
+#define SYS_BOARD_PLLAR     (CKGR_PLLAR_ONE | CKGR_PLLAR_MULA(0x1fUL) | \
+							 CKGR_PLLAR_PLLACOUNT(0x3fUL) | CKGR_PLLAR_DIVA(0x3UL))
+#define SYS_BOARD_MCKR      (PMC_MCKR_PRES_CLK_2 | PMC_MCKR_CSS_PLLA_CLK)
 
-#if (!defined CHIP_FREQ_XTAL)
-#  define CHIP_FREQ_XTAL CHIP_FREQ_XTAL_12M
-#endif
-
-/* Clock Settings (4MHz) using Internal Fast RC */
 uint32_t SystemCoreClock = CHIP_FREQ_MAINCK_RC_4MHZ;
 
 /**
  * \brief Setup the microcontroller system.
- *
  * Initialize the System and update the SystemFrequency variable.
  */
 void SystemInit( void )
 {
-  /*
-   * TODO:
-   * Add code to initialize the system according to your application.
-   *
-   * For SAM4S, the internal 4MHz fast RC oscillator is the default clock
-   * selected at system reset state.
-   */
+	/* Set FWS according to SYS_BOARD_MCKR configuration */
+	EFC->EEFC_FMR = EEFC_FMR_FWS(3);
 
-  /* Set FWS according to default clock configuration */
-  EFC0->EEFC_FMR = EEFC_FMR_FWS(1);
-#if defined(ID_EFC1)
-  EFC1->EEFC_FMR = EEFC_FMR_FWS(1);
-#endif
+  /* Initialize main oscillator */
+  if ( !(PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) )
+  {
+	PMC->CKGR_MOR = CKGR_MOR_KEY_PASSWD | SYS_BOARD_OSCOUNT | CKGR_MOR_MOSCRCEN | CKGR_MOR_MOSCXTEN;
+	while ( !(PMC->PMC_SR & PMC_SR_MOSCXTS) )
+	{
+	}
+  }
+
+  /* Switch to 3-20MHz Xtal oscillator */
+  PMC->CKGR_MOR = CKGR_MOR_KEY_PASSWD | SYS_BOARD_OSCOUNT | CKGR_MOR_MOSCRCEN | CKGR_MOR_MOSCXTEN | CKGR_MOR_MOSCSEL;
+
+  while ( !(PMC->PMC_SR & PMC_SR_MOSCSELS) )
+  {
+  }
+
+  PMC->PMC_MCKR = (PMC->PMC_MCKR & ~(uint32_t)PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_MAIN_CLK;
+
+  while (!(PMC->PMC_SR & PMC_SR_MCKRDY))
+  {
+  }
+
+  /* Initialize PLLA */
+  PMC->CKGR_PLLAR = SYS_BOARD_PLLAR;
+  while ( !(PMC->PMC_SR & PMC_SR_LOCKA) )
+  {
+  }
+
+  /* Switch to main clock */
+  PMC->PMC_MCKR = (SYS_BOARD_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_MAIN_CLK;
+  while ( !(PMC->PMC_SR & PMC_SR_MCKRDY) )
+  {
+  }
+
+  /* Switch to PLLA */
+  PMC->PMC_MCKR = SYS_BOARD_MCKR;
+
+  while ( !(PMC->PMC_SR & PMC_SR_MCKRDY) )
+  {
+  }
+
+  SystemCoreClock = CHIP_FREQ_CPU_MAX;
 }
 
-/**
- * \brief Get Core Clock Frequency.
- */
 void SystemCoreClockUpdate( void )
 {
   /* Determine clock frequency according to clock register values */
   switch ( PMC->PMC_MCKR & (uint32_t) PMC_MCKR_CSS_Msk )
   {
-    case PMC_MCKR_CSS_SLOW_CLK: /* Slow clock */
+    case PMC_MCKR_CSS_SLOW_CLK:	/* Slow clock */
       if ( SUPC->SUPC_SR & SUPC_SR_OSCSEL )
       {
         SystemCoreClock = CHIP_FREQ_XTAL_32K;
@@ -91,7 +117,7 @@ void SystemCoreClockUpdate( void )
     case PMC_MCKR_CSS_MAIN_CLK: /* Main clock */
       if ( PMC->CKGR_MOR & CKGR_MOR_MOSCSEL )
       {
-        SystemCoreClock = CHIP_FREQ_XTAL;
+        SystemCoreClock = CHIP_FREQ_XTAL_12M;
       }
       else
       {
@@ -100,15 +126,14 @@ void SystemCoreClockUpdate( void )
         switch ( PMC->CKGR_MOR & CKGR_MOR_MOSCRCF_Msk )
         {
           case CKGR_MOR_MOSCRCF_4_MHz:
-            SystemCoreClock = CHIP_FREQ_MAINCK_RC_4MHZ;
           break;
 
           case CKGR_MOR_MOSCRCF_8_MHz:
-            SystemCoreClock = CHIP_FREQ_MAINCK_RC_8MHZ;
+            SystemCoreClock *= 2U;
           break;
 
           case CKGR_MOR_MOSCRCF_12_MHz:
-            SystemCoreClock = CHIP_FREQ_MAINCK_RC_12MHZ;
+            SystemCoreClock *= 3U;
           break;
 
           default:
@@ -121,7 +146,7 @@ void SystemCoreClockUpdate( void )
     case PMC_MCKR_CSS_PLLB_CLK:	/* PLLB clock */
       if ( PMC->CKGR_MOR & CKGR_MOR_MOSCSEL )
       {
-        SystemCoreClock = CHIP_FREQ_XTAL;
+        SystemCoreClock = CHIP_FREQ_XTAL_12M;
       }
       else
       {
@@ -130,15 +155,14 @@ void SystemCoreClockUpdate( void )
         switch ( PMC->CKGR_MOR & CKGR_MOR_MOSCRCF_Msk )
         {
           case CKGR_MOR_MOSCRCF_4_MHz:
-            SystemCoreClock = CHIP_FREQ_MAINCK_RC_4MHZ;
           break;
 
           case CKGR_MOR_MOSCRCF_8_MHz:
-            SystemCoreClock = CHIP_FREQ_MAINCK_RC_8MHZ;
+            SystemCoreClock *= 2U;
           break;
 
           case CKGR_MOR_MOSCRCF_12_MHz:
-            SystemCoreClock = CHIP_FREQ_MAINCK_RC_12MHZ;
+            SystemCoreClock *= 3U;
           break;
 
           default:
@@ -173,94 +197,33 @@ void SystemCoreClockUpdate( void )
 }
 
 /**
- * \brief Initialize flash wait state according to operating frequency.
- *
- * \param ul_clk System clock frequency.
+ * Initialize flash.
  */
-void system_init_flash( uint32_t ul_clk )
+void system_init_flash( uint32_t dw_clk )
 {
-  /* Set FWS for embedded Flash access according to operating frequency */
-#if !defined(ID_EFC1)
-  if ( ul_clk < CHIP_FREQ_FWS_0 )
+	/* Set FWS for embedded Flash access according to operating frequency */
+  if ( dw_clk < CHIP_FREQ_FWS_0 )
   {
-    EFC0->EEFC_FMR = EEFC_FMR_FWS(0);
-  }
-  else
+		EFC->EEFC_FMR = EEFC_FMR_FWS( 0 );
+	}
+	else
   {
-    if ( ul_clk < CHIP_FREQ_FWS_1 )
-    {
-      EFC0->EEFC_FMR = EEFC_FMR_FWS(1);
+	  if ( dw_clk < CHIP_FREQ_FWS_1 )
+		{
+      EFC->EEFC_FMR = EEFC_FMR_FWS( 1 );
     }
     else
     {
-      if ( ul_clk < CHIP_FREQ_FWS_2 )
+      if ( dw_clk < CHIP_FREQ_FWS_2 )
       {
-        EFC0->EEFC_FMR = EEFC_FMR_FWS(2);
+        EFC->EEFC_FMR = EEFC_FMR_FWS( 2 );
       }
       else
       {
-        if ( ul_clk < CHIP_FREQ_FWS_3 )
-        {
-          EFC0->EEFC_FMR = EEFC_FMR_FWS(3);
-        }
-        else
-        {
-          if ( ul_clk < CHIP_FREQ_FWS_4 )
-          {
-            EFC0->EEFC_FMR = EEFC_FMR_FWS(4);
-          }
-          else
-          {
-            EFC0->EEFC_FMR = EEFC_FMR_FWS(5);
-          }
-        }
+        EFC->EEFC_FMR = EEFC_FMR_FWS( 3 ) ;
       }
     }
   }
-#else
-  if ( ul_clk < CHIP_FREQ_FWS_0 )
-  {
-    EFC0->EEFC_FMR = EEFC_FMR_FWS(0);
-    EFC1->EEFC_FMR = EEFC_FMR_FWS(0);
-  }
-  else
-  {
-    if ( ul_clk < CHIP_FREQ_FWS_1 )
-    {
-      EFC0->EEFC_FMR = EEFC_FMR_FWS(1);
-      EFC1->EEFC_FMR = EEFC_FMR_FWS(1);
-    }
-    else
-    {
-      if ( ul_clk < CHIP_FREQ_FWS_2 )
-      {
-        EFC0->EEFC_FMR = EEFC_FMR_FWS(2);
-        EFC1->EEFC_FMR = EEFC_FMR_FWS(2);
-      }
-      else
-      {
-        if ( ul_clk < CHIP_FREQ_FWS_3 )
-        {
-          EFC0->EEFC_FMR = EEFC_FMR_FWS(3);
-          EFC1->EEFC_FMR = EEFC_FMR_FWS(3);
-        }
-        else
-        {
-          if ( ul_clk < CHIP_FREQ_FWS_4 )
-          {
-            EFC0->EEFC_FMR = EEFC_FMR_FWS(4);
-            EFC1->EEFC_FMR = EEFC_FMR_FWS(4);
-          }
-          else
-          {
-            EFC0->EEFC_FMR = EEFC_FMR_FWS(5);
-            EFC1->EEFC_FMR = EEFC_FMR_FWS(5);
-          }
-        }
-      }
-    }
-  }
-#endif
 }
 
 /* @cond 0 */
