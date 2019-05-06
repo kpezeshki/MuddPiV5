@@ -13,15 +13,20 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define LED_PIN 18
-#define BUFF_LEN 32
-
+#define LED_PIN PIO_PA18
 #define CSBMP PIO_PA8
-
+#define BUFF_LEN 32
 
 /////////////////////////////////////////////////////////////////
 // Solution Functions
 /////////////////////////////////////////////////////////////////
+
+
+void initADC(void)
+{
+	adcInit(ADC_MR_LOWRES_BITS_10);
+	adcChannelInit(ADC_CH4, ADC_CGR_GAIN_X1, ADC_COR_OFFSET_OFF); // Using ADC channel 4 (on pin PIO_PB0)
+}
 
 void initSPI(void)
 {
@@ -61,12 +66,24 @@ void getTemperatureAndPressure(void)
 	press = convertPress(press_msb, press_lsb, press_xlsb);
 }
 
+void getLight(void)
+{
+	light = adcRead(ADC_CH4);
+}
+
+
+/////////////////////////////////////////////////////////////////
+// Measured Quantities
+/////////////////////////////////////////////////////////////////
+volatile double temp = 0; // Global variable in which the current temperature is stored
+volatile double press = 0; // Global variable in which the current pressure is stored
+volatile char id = 0; // Global variable in which the current BMP280 chip ID is stored
+volatile float light = 0; // Global variable in which the current phototransistor voltage is stored
+
 
 /////////////////////////////////////////////////////////////////
 // Provided Constants and Functions
 /////////////////////////////////////////////////////////////////
-
-
 long signed int t_fine = 0;
 
 //Defining the web page in two chunks: everything before the current time, and everything after the current time
@@ -75,6 +92,26 @@ const char* webpageStart = "<!DOCTYPE html><html><head><title>E155 Web Server De
 const char* ledStr = "<p>LED Control:</p><form action=\"ledon\"><input type=\"submit\" value=\"Turn the LED on!\" /></form> <form action=\"ledoff\"><input type=\"submit\" value=\"Turn the LED off!\" /></form>";
 const char* webpageEnd   = "</body></html>";
 
+// Sends a null terminated string of arbitrary length
+void sendString(char* str) {
+	char* ptr = str;
+	while (*ptr) uartTx(*ptr++);
+}
+
+//determines whether a given character sequence is in a char array request, returning 1 if present, -1 if not present
+int inString(char request[], char des[]) {
+	if (strstr(request, des) != NULL) {return 1;}
+	return -1;
+}
+
+//determines if tags "REQ:" and "/REQ" are in the input string
+int requestInString(char request[]) {
+	int tag1InString = inString(request, "\n");
+	if(tag1InString > 0) {
+		return 1;
+	}
+	return -1;
+}
 
 // Returns temperature in DegC, double precision. Output value of “51.23” equals 51.23 DegC.
 // t_fine carries fine temperature as global value
@@ -123,6 +160,17 @@ volatile double convertPress (volatile char msb, volatile char lsb, volatile cha
 	p = p + (var1 + var2 + ((double) dig_P7)) / 16.0;
 	return p;
 }
+void updateButton(char request[])
+{
+	//the request has been received. now process to determine whether to turn the LED on or off
+	if (inString(request, "ledoff")==1) {
+		pioDigitalWrite(LED_PIN, PIO_HIGH);
+	}
+	if (inString(request, "ledon")==1) {
+		pioDigitalWrite(LED_PIN, PIO_LOW);
+	}
+}
+
 
 int main(void)
 {
@@ -132,6 +180,7 @@ int main(void)
 	tcInit();
 	tcDelayInit();
 	
+	initADC();
 	initSPI();
 	initBMP();
 	
@@ -148,7 +197,7 @@ int main(void)
     while (1) 
     {
 		// wait for the ESP8266 to send a request. Requests take the form '/REQ:<tag>\n', with TAG being <= 10 characters. Therefore the request[] array must be able to contain 18 characters
-		getTemperatureAndPressure();
+
 		
 		// Receive web request from the ESP
 		char request[BUFF_LEN] = "                  "; //initializing to a known value
@@ -161,19 +210,17 @@ int main(void)
 			while (!uartRxReady());
 			request[charIndex++] = uartRx();
 		}
-		
-		//the request has been received. now process to determine whether to turn the LED on or off
-		if (inString(request, "ledoff")==1) {
-			pioDigitalWrite(LED_PIN, PIO_HIGH);
-		}
-		if (inString(request, "ledon")==1) {
-			pioDigitalWrite(LED_PIN, PIO_LOW);
-		}
+		getTemperatureAndPressure();
+		getLight();
+		updateButton(request);	
 		
 		
+		// vars to print out floats to serial
 		char temperature[20];
 		char temperaturept2[20];
 		char pressure[20];
+
+		// use integer to string function because float to string is finicky
 		itoa(temp, temperature, 10);
 		itoa((temp*10)-((int)temp)*10, temperaturept2, 10);
 		itoa(press, pressure, 10);
@@ -201,22 +248,3 @@ int main(void)
     }
 }
 
-void sendString(char* str) {
-	char* ptr = str;
-	while (*ptr) uartTx(*ptr++);
-}
-
-//determines whether a given character sequence is in a char array request, returning 1 if present, -1 if not present
-int inString(char request[], char des[]) {
-	if (strstr(request, des) != NULL) {return 1;}
-	return -1;
-}
-
-//determines if tags "REQ:" and "/REQ" are in the input string
-int requestInString(char request[]) {
-	int tag1InString = inString(request, "\n");
-	if(tag1InString > 0) {
-		return 1;
-	}
-	return -1;
-}
