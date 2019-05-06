@@ -146,10 +146,14 @@ void setup() {
   //Serial.print("With password ");
   //Serial.println(password);
   
-  WiFi.begin(networkName, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  if (AP_MODE) {
+    WiFi.softAP(networkName, password);
+  } else {
+    WiFi.begin(networkName, password);
+    while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Attempting connection...");
+    }
   }
   //connected to the network. Printing status information
   //Serial.print("Connected to WiFi network with IP: ");
@@ -173,6 +177,13 @@ void setup() {
 //Main program. Runs repeatedly after setup code
 void loop() {
 
+  if (AP_MODE) {
+    if (WiFi.softAPgetStationNum() > 0) {
+      digitalWrite(LED, HIGH);
+    } else {
+      digitalWrite(LED, LOW);
+    }
+  }
   //Wait for a new connection
   WiFiClient webClient = server.available();
   //If a client has connected, we wait for a request
