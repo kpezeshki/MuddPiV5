@@ -51,7 +51,6 @@ WiFiServer server(80);           //The server is accessible over port 80
 String     request;              //Stores the client HTTP request
 String     parsedRequest = "<>"; //Stores a simplified version of the HTTP request to transmit to the MCU
 String     currentLine;          //Stores a semi-parsed version of the HTTP request
-String     webpage = "WAITING FOR DATA";  //The current webpage, updated by the MCU
 
 extern "C" {
 #include "user_interface.h"
@@ -106,14 +105,16 @@ int substringInString(String haystack, String needle) {
 
 //Sends parsedRequest over UART to the MCU and waits for a complete webpage to be returned
 String receiveWebPage(String parsedRequestIn, WiFiClient * webClient) {
-  webpage = ""; //clear webpage in preparation for new webpage to be transmitted
+  String webpage = ""; //clear webpage in preparation for new webpage to be transmitted
 
 
   // ignore favicon and other requests we don't want
   if (parsedRequestIn == "<>") return "";
 
   mcuSerial.flush();
+  while (mcuSerial.available()) mcuSerial.read();
   mcuSerial.print(parsedRequestIn);
+  delay(100);
 
   //wait until the entire webpage has been received
   unsigned long lastByteTime = millis();
@@ -122,12 +123,15 @@ String receiveWebPage(String parsedRequestIn, WiFiClient * webClient) {
     while (mcuSerial.available()) {
       yield();
       char newData = mcuSerial.read();
-      //webClient->print(newData);
+      mcuSerial.write(newData);
+      webClient->write(newData);
       webpage.concat(newData);
       lastByteTime = millis();
     }
     if (millis() > lastByteTime + 200 || webpage.indexOf("</html>")) break;
   }
+  while (mcuSerial.available()) mcuSerial.read();
+  
   return webpage;
 }
 
@@ -208,7 +212,8 @@ void loop() {
             if (parseRequest(request) != "<>") {
               parsedRequest = parseRequest(request);
             }
-            webClient.println(receiveWebPage(parsedRequest, &webClient));
+            //webClient.println(receiveWebPage(parsedRequest, &webClient));
+            receiveWebPage(parsedRequest, &webClient);
             //transmitting an extra newline to catch transmission termination errors
             //webClient.println();
             break; //disconnect from the client by breaking from while loop
