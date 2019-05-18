@@ -1,0 +1,7 @@
+--cpu Cortex-M3
+".\target_1_build\sort2.o"
+".\target_1_build\startup_sam3s.o"
+".\target_1_build\system_sam3s.o"
+--ro-base 0x00400000 --entry 0x00400000 --rw-base 0x20000000 --entry Reset_Handler --first __Vectors --strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\testSort.map" -o .\Target_1_build\testSort.axf

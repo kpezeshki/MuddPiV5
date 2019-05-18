@@ -1,0 +1,14 @@
+Analysis & Synthesis Status : Successful - Fri Apr 12 21:11:11 2019
+Quartus Prime Version : 16.0.0 Build 211 04/27/2016 SJ Lite Edition
+Revision Name : fpga_testpcb
+Top-level Entity Name : fpga_testpcb
+Family : Cyclone IV E
+Total logic elements : 25
+    Total combinational functions : 25
+    Dedicated logic registers : 25
+Total registers : 25
+Total pins : 4
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0

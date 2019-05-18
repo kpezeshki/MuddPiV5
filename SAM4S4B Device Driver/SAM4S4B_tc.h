@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2019
  * 
  * Contains base address locations, register structs, definitions, and functions for the TC (Timer
  * Counter) peripheral of the SAM4S4B microcontroller. */
@@ -151,14 +151,8 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TC Functions
+// TC Helper Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/* Initializes the TC peripheral by enabling the Master Clock to TC0 and TC1. */
-void tcInit() {
-    pmcEnablePeriph(PMC_ID_TC0);
-    pmcEnablePeriph(PMC_ID_TC1);
-}
 
 /* Returns the TC block ID that corresponds to a given channel.
  *    -- channelID: a TC channel ID, e.g. TC_CH3_ID
@@ -181,6 +175,17 @@ Tc* tcChannelToBlockBase(int channelID) {
     return tcBlockToBlockBase(tcChannelToBlock(channelID));
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// TC User Functions - Timer/Counter (Lower Level; See Delay Functions Below)
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* Initializes the TC peripheral by enabling the Master Clock to TC0 and TC1. */
+void tcInit() {
+    pmcEnablePeriph(PMC_ID_TC0);
+    pmcEnablePeriph(PMC_ID_TC1);
+}
+
 /* Enables a TC channel and configures it with the desired clock and mode.
  *    -- channelID: a TC channel ID, e.g. TC_CH3_ID
  *    -- clock: a TC clock ID, e.g. TC_CLK3_ID
@@ -192,11 +197,6 @@ void tcChannelInit(int channelID, uint32_t clock, uint32_t mode) {
     block->TC_CH[chInd].TC_CMR.TCCLKS  = clock; // Set clock to desired clock
     block->TC_CH[chInd].TC_CMR.WAVE    = 1;     // Waveform mode
     block->TC_CH[chInd].TC_CMR.WAVESEL = mode;  // Set counting mode to desired mode
-}
-
-/* Configures TC Channel 0 to perform delays using the fastest clock and RC compares. */
-void tcDelayInit() {
-    tcChannelInit(TC_CH0_ID, TC_CLK1_ID, TC_MODE_UP_RC);
 }
 
 /* Reads the current value of the counter of a given channel.
@@ -234,40 +234,52 @@ int tcCheckRC_compare(int channelID) {
     return block->TC_CH[chInd].TC_SR.CPCS;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// TC User Functions - Delay Unit (Higher Level)
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* Configures TC Channel 0 to perform delays using the fastest clock and RC compares. Does not
+ * require the user to call any lower-level functions such as tcInit(). */
+void tcDelayInit() {
+    tcInit();
+    tcChannelInit(TC_CH0_ID, TC_CLK1_ID, TC_MODE_UP_RC);
+}
+
 /* Delays the system by a specified number of microseconds
  *    -- duration: the number of microseconds to delay
- * Note: This works up to (2^16 - 1 = 65535) us. Using the fastest available clock, TC_CLCK1_ID,
- * we achieve a resolution of 0.5 us. Also note that the doesn't use the above functions to optimize
- * speed; ideally, it would be written in assembly language for further optimization. Requires that
- * tcDelayInit() be called previously. Has not been tested rigorously for accuracy. */
-void tcDelayMicros(uint32_t duration) {
-    Tc* block = tcChannelToBlockBase(TC_CH0_ID);
-    int chInd = TC_CH0_ID % TC_CH_NUMBER;
-    block->TC_CH[chInd].TC_CCR.SWTRG = 1; // Reset counter
-    block->TC_CH[chInd].TC_RC = duration * (TC_CLK1_SPEED / 1e6); // Set compare value
-    while(!(block->TC_CH[chInd].TC_SR.CPCS)); // Wait until an RC Compare has occurred
+ * Note: This works up to (2^16 - 1 = 65535) us. Using the fastest available clock, TC_CLK1_ID,
+ * we achieve a resolution of 0.5 us. Also note that this doesn't use the lower-level functions
+ * in order to optimize speed; ideally, it would be written in assembly language for further
+ * optimization. Requires that tcDelayInit() be called previously. 
+ * 
+ * CAUTION: If master clock speed is NOT the default 4 MHz, the constant in the line with 
+ * comment "set compare value", which is currently 2, must be changed to TC_CKL1_SPEED / 1e6. */
+void tcDelayMicroseconds(uint32_t duration) {
+    TC0->TC_CH[0].TC_CCR.SWTRG = 1; // Reset counter
+    TC0->TC_CH[0].TC_RC = duration * 20; // Set compare value
+    while(!(TC0->TC_CH[0].TC_SR.CPCS)); // Wait until an RC Compare has occurred
 }
 
 /* Delays the system by a specified number of milliseconds
  *    -- duration: the number of milliseconds to delay
  * Note: The dependence on a "for" loop makes this code less efficient than tcDelayMicros(), and
  * so should be avoided for durations shorter than 65 milliseconds, in which case tcDelayMicros()
- * is the better option. Requires that tcDelayInit() be called previously. Has not been tested
- * rigorously for accuracy. */
-void tcDelayMillis(int duration) {
+ * is the better option. Requires that tcDelayInit() be called previously. */
+void tcDelay(int duration) {
     for (int i = 0; i < duration; i++) {
-        tcDelayMicros(1000);
+        tcDelayMicroseconds(1000);
     }
 }
 
 /* Delays the system by a specified number of seconds
  *    -- duration: the number of seconds to delay
  * Note: the dependence on nested "for" loops and function calls makes this code extremely
- * inefficient, and so should be avoided for durations shorter than a minute. Requries that
- * tcDelayInit be called previously. Has not been tested rigorously for accuracy. */
+ * inefficient, and so should be avoided for durations shorter than a minute. Requires that
+ * tcDelayInit() be called previously. */
 void tcDelaySeconds(int duration) {
     for (int i = 0; i < duration; i++) {
-        tcDelayMillis(1000);
+        tcDelay(1000);
     }
 }
 

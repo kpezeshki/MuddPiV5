@@ -145,7 +145,7 @@ void uartTx(char data) {
 
 /* Checks if a character has been received over UART.
  *    -- return: true if a character has been received; false otherwise */
-int uartRxReady() {
+bool uartRxReady() {
     return UART->UART_SR.RXRDY; // Check if data has been received
 }
 

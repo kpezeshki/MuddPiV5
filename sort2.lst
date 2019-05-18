@@ -1,0 +1,258 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;AREA |.text|, CODE, READONLY
+    2 00000000                 AREA             RESET, CODE, READONLY
+    3 00000000         ;EXPORT main
+    4 00000000                 THUMB
+    5 00000000                 ENTRY
+    6 00000000         start
+    7 00000000         main
+    8 00000000 E7FF            B                loadarray
+    9 00000002         loadarray                            ;moves array from p
+                                                            rogram memory to da
+                                                            ta memory
+   10 00000002 4B23            LDR              R3, =ARR    ;load base address 
+                                                            of array in program
+                                                             memory into R3
+   11 00000004 F04F 5400       LDR              R4, =0x20000000 ;load new base 
+                                                            address of array in
+                                                            to R3, in data memo
+                                                            ry
+   12 00000008 F04F 0600       MOV              R6, #0      ;current element in
+                                                            dex to be copied
+   13 0000000C         loaditeration                        ;moves a single ele
+                                                            ment of array from 
+                                                            program -> data mem
+                                                            ory
+   14 0000000C 2E0C            CMP              R6, #12     ;if R5 >= 12, array
+                                                             has been copied, s
+                                                            o jump to sort
+   15 0000000E DA05            BGE              sort        ;once the array has
+                                                             been copied, sort 
+                                                            the array
+   16 00000010 F853 7026       LDR              R7, [R3, R6, LSL #2] ;load firs
+                                                            t element of arr in
+                                                            to R7, left shiftin
+                                                            g as word-addressin
+                                                            g
+   17 00000014 55A7            STRB             R7, [R4, R6] ;storing this elem
+                                                            ent in data memory
+   18 00000016 F106 0601       ADD              R6, R6, #1  ;incrementing index
+                                                            
+   19 0000001A E7F7            B                loaditeration
+   20 0000001C         sort
+   21 0000001C F04F 5300       LDR              R3, =0x20000000 ;load base addr
+                                                            ess of array into R
+                                                            3
+   22 00000020 F04F 0400       MOV              R4, #0      ;setting iteration 
+                                                            number to 0
+   23 00000024 F04F 0500       MOV              R5, #0      ;setting iteration 
+                                                            position to 0
+   24 00000028         iteration
+   25 00000028 2C0B            CMP              R4, #11     ;if R4 is greater t
+                                                            han or equal to 12,
+                                                             stop program execu
+                                                            tion
+   26 0000002A DA13            BGE              done        ;jumping to the end
+                                                             of the program
+   27 0000002C F104 0401       ADD              R4, R4, #1  ;incrementing R4  
+   28 00000030 F04F 0500       MOV              R5,     #0  ;setting R5 back to
+                                                             0
+   29 00000034         position
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   30 00000034 2D0B            CMP              R5, #11     ;if R5 is greater t
+                                                            han or equal to 11,
+                                                             stop program execu
+                                                            tion
+   31 00000036 DA0C            BGE              position_done ;11 is used becau
+                                                            se comparing elemen
+                                                            t i and i+1: hence 
+                                                            i+1=12 when i=1
+   32 00000038 F105 0601       ADD              R6, R5, #1  ;compute R5+1, the 
+                                                            address of the elem
+                                                            ent to compare agai
+                                                            nst, in R6 
+   33 0000003C 575F            LDRSB            R7, [R3, R5] ;load data at posi
+                                                            tion R5 from the ar
+                                                            ray into R7
+   34 0000003E F913 8006       LDRSB            R8, [R3, R6] ;load data at posi
+                                                            tion R5+1 from the 
+                                                            array into R8
+   35 00000042 4547            CMP              R7, R8      ;only swap when R7 
+                                                            > R8
+   36 00000044 DD02            BLE              swapped     ;so skip swap and j
+                                                            ump to next step of
+                                                             loop 
+   37 00000046 F803 8005       STRB             R8, [R3, R5] ;store R7 into arr
+                                                            ay position R5
+   38 0000004A 559F            STRB             R7, [R3, R6] ;store R8 into arr
+                                                            ay position R6
+   39 0000004C         swapped
+   40 0000004C F105 0501       ADD              R5, R5, #1  ;incrementing R5
+   41 00000050 E7F0            B                position    ;this iteration of 
+                                                            the inner loop is d
+                                                            one
+   42 00000052         position_done
+   43 00000052 E7E9            B                iteration   ;this iteration of 
+                                                            the outer loop is d
+                                                            one
+   44 00000054         done
+   45 00000054 BF00            NOP
+   46 00000056 F04F 0018       MOV              r0, #0x18   ; angel_SWIreason_R
+                                                            eportException
+   47 0000005A 490E            LDR              r1, =0x20026 ; ADP_Stopped_Appl
+                                                            icationExit
+   48 0000005C DFAB            SVC              #0xAB       ; ARM semihosting (
+                                                            formerly SWI)
+   49 0000005E         
+   50 0000005E         
+   51 0000005E         
+   52 0000005E 00 00 0000000C 
+              0000000B 
+              0000000A 
+              00000009 
+              00000008 
+              00000007 
+              00000006 
+              00000005 
+              00000004 
+              00000003 
+              00000002 
+              00000001 ARR     DCD              12,11,10,9,8,7,6,5,4,3,2,1
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   53 00000090         
+   54 00000090                 ALIGN
+   55 00000090                 END
+              00000000 
+              00020026 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
+ork --depend=.\target_1_build\sort2.d -o.\target_1_build\sort2.o -I.\RTE\_Targe
+t_1 -I"C:\Users\Kaveh Pezeshki\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Co
+re\Include" -I"C:\Users\Kaveh Pezeshki\AppData\Local\Arm\Packs\Atmel\SAM3S_DFP\
+1.0.70\sam3s\include" --predefine="__EVAL SETA 1" --predefine="__UVISION_VERSIO
+N SETA 527" --predefine="_RTE_ SETA 1" --predefine="__SAM3S4B__ SETA 1" --list=
+.\sort2.lst sort2.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+ARR 00000060
+
+Symbol: ARR
+   Definitions
+      At line 52 in file sort2.s
+   Uses
+      At line 10 in file sort2.s
+Comment: ARR used once
+RESET 00000000
+
+Symbol: RESET
+   Definitions
+      At line 2 in file sort2.s
+   Uses
+      None
+Comment: RESET unused
+done 00000054
+
+Symbol: done
+   Definitions
+      At line 44 in file sort2.s
+   Uses
+      At line 26 in file sort2.s
+Comment: done used once
+iteration 00000028
+
+Symbol: iteration
+   Definitions
+      At line 24 in file sort2.s
+   Uses
+      At line 43 in file sort2.s
+Comment: iteration used once
+loadarray 00000002
+
+Symbol: loadarray
+   Definitions
+      At line 9 in file sort2.s
+   Uses
+      At line 8 in file sort2.s
+Comment: loadarray used once
+loaditeration 0000000C
+
+Symbol: loaditeration
+   Definitions
+      At line 13 in file sort2.s
+   Uses
+      At line 19 in file sort2.s
+Comment: loaditeration used once
+main 00000000
+
+Symbol: main
+   Definitions
+      At line 7 in file sort2.s
+   Uses
+      None
+Comment: main unused
+position 00000034
+
+Symbol: position
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 29 in file sort2.s
+   Uses
+      At line 41 in file sort2.s
+Comment: position used once
+position_done 00000052
+
+Symbol: position_done
+   Definitions
+      At line 42 in file sort2.s
+   Uses
+      At line 31 in file sort2.s
+Comment: position_done used once
+sort 0000001C
+
+Symbol: sort
+   Definitions
+      At line 20 in file sort2.s
+   Uses
+      At line 15 in file sort2.s
+Comment: sort used once
+start 00000000
+
+Symbol: start
+   Definitions
+      At line 6 in file sort2.s
+   Uses
+      None
+Comment: start unused
+swapped 0000004C
+
+Symbol: swapped
+   Definitions
+      At line 39 in file sort2.s
+   Uses
+      At line 36 in file sort2.s
+Comment: swapped used once
+12 symbols
+348 symbols in table

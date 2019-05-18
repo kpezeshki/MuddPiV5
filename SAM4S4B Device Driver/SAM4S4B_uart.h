@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2019
  * 
  * Contains base address locations, register structs, definitions, and functions for the UART
  * (Universal Asynchronous Receiver-Transmitter) peripheral of the SAM4S4B microcontroller. */
@@ -112,17 +112,19 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// UART Functions
+// UART User Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* Enables the UART peripheral and initializes its parity and baut rate.
- *    -- parity:  A UART parity ID, e.g. UART_MR_PAR_SPACE
+/* Enables the UART peripheral and initializes its parity and baud rate.
+ *    -- parity: a UART parity ID, e.g. UART_MR_PAR_SPACE
  *    -- CD: a 16-bit unsigned integer which determines the baud rate as follows:
  *       Baud Rate = MCK_FREQ/(16*CD)
  * Note that pin PA9 is used as receive and pin PA10 is used as transmit. pioInit() must be called
  * first. */
+// TODO: Discuss keeping CD as is instead of changing to baud rate
 void uartInit(uint32_t parity, uint16_t CD) {
     pmcEnablePeriph(PMC_ID_UART0);
+    pioInit();
 
     pioPinMode(UART_URXD0_PIN, UART_FUNC); // Set URXD0 pin mode
     pioPinMode(UART_ITXD0_PIN, UART_FUNC); // Set ITXD0 pin mode
@@ -134,18 +136,24 @@ void uartInit(uint32_t parity, uint16_t CD) {
     UART->UART_BRGR   = CD; // Set baud rate divisor
 }
 
-/* Transmits a character (1 byte) over UART
+/* Transmits a character (1 byte) over UART.
  *    -- data: the character to send over UART */
 void uartTx(char data) {
     while (!(UART->UART_SR.TXRDY)); // Wait until previous data has been transmitted
     UART->UART_THR = data; // Write data into holding register for transmit
 }
 
-/* Receives a character (1 byte) over UART
+/* Checks if a character has been received over UART.
+ *    -- return: true if a character has been received; false otherwise */
+int uartRxReady() {
+    return UART->UART_SR.RXRDY; // Check if data has been received
+}
+
+/* Receives a character (1 byte) over UART.
  *    -- return: the character received over UART */
 char uartRx() {
-    while (!(UART->UART_SR.RXRDY)); // Wait until data has been received
-    return (char) UART->UART_RHR; // Return received data in holding register
+    if (uartRxReady()) return (char) UART->UART_RHR; // Return received data in holding register
+    else               return (char) 0;
 }
 
 

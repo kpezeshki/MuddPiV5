@@ -109,7 +109,7 @@
  * provided or else the microcontroller will not function. */
 void samInit() {
     wdtDisable();
-    //pmcMainClkBypass();
+    pmcMainClkBypass();
 }
 
 

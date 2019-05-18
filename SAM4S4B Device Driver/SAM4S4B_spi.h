@@ -2,7 +2,7 @@
  *
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
- * 12/11/2018
+ * 2/25/2019
  * 
  * Contains base address locations, register structs, definitions, and functions for the SPI (Serial
  * Peripheral Interface) peripheral of the SAM4S4B microcontroller. */
@@ -11,6 +11,7 @@
 #define SAM4S4B_SPI_H
 
 #include <stdint.h>
+#include "SAM4S4B_pio.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPI Base Address Definitions
@@ -141,66 +142,56 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// SPI Functions
+// SPI User Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* Enables the SPI peripheral and intializes its clock speed (baud rate), polarity, and phase. */
+/* Enables the SPI peripheral and intializes its clock speed (baud rate), polarity, and phase.
+ *    -- clkdivide: (0x01 to 0xFF). The SPI clk will be the master clock / clkdivide.
+ *    -- cpol: clock polarity (0: inactive state is logical 0, 1: inactive state is logical 1).
+ *    -- ncpha: clock phase (0: data changed on leading edge of clk and captured on next edge, 
+ *          1: data captured on leading edge of clk and changed on next edge)
+ * Note: the SPI mode register is set with the following unadjustable settings:
+ *    -- Master mode
+ *    -- Fixed peripheral select
+ *    -- Chip select lines directly connected to peripheral device
+ *    -- Mode fault detection enabled
+ *    -- WDRBT disabled
+ *    -- LLB disabled
+ *    -- PCS = 0000 (Peripheral 0 selected), means NPCS[3:0] = 1110
+ * Refer to the datasheet for more low-level details. */ 
 void spiInit(uint32_t clkdivide, uint32_t cpol, uint32_t ncpha) {
     pmcEnablePeriph(PMC_ID_SPI);
-    /*Initializes the SPI interface for Chip Select line 0
+    pioInit();
 
-    clkdivide (0x01 to 0xFF). The SPI clk will be the master clock / clkdivide
-    cpol: clock polarity (0: inactive state is logic level 0, 1: inactive state is logic level 1)
-    ncpha: clock phase (0: data changed on leading edge of clk and captured on next edge, 1: data captured on leading edge of clk and changed on next edge)
-    Please see p585-p586 for cpol/ncpha timing diagrams
-
-    This implements only: (p601/p610)
-        1) SPI Master Mode
-        2) Fixed Peripheral Select
-        3) Mode Fault Detection Enabled
-        4) Local Loopback Disabled
-        5) 8 Bits Per Transfer
-    Please read the SPI User Interface section of the datasheet for more advanced configuration features
-    */
-
-    //Initially assigning SPI pins (PA11-PA14) to peripheral A (SPI). Pin mapping given in p38-p39
+    // Initially assigning SPI pins (PA11-PA14) to peripheral A (SPI)
     pioPinMode(PIO_PA11, PIO_PERIPH_A);
     pioPinMode(PIO_PA12, PIO_PERIPH_A);
     pioPinMode(PIO_PA13, PIO_PERIPH_A);
     pioPinMode(PIO_PA14, PIO_PERIPH_A);
 
-    //next setting the SPI control register (p600). Set to 1 to enable SPI
-    SPI->SPI_CR.SPIEN = 1;
-
-    //next setting the SPI mode register (p601) with the following:
-    //master mode
-    //fixed peripheral select
-    //chip select lines directly connected to peripheral device
-    //mode fault detection enabled
-    //WDRBT disabled
-    //LLB disabled
-    //PCS = 0000 (Peripheral 0 selected), means NPCS[3:0] = 1110
-    SPI->SPI_MR.MSTR = 1;
-
-    //next setting the chip select register for peripheral 0 (p610)
-    //ignoring delays
-    SPI->SPI_CSR0.SCBR = (cpol<<0) | (ncpha<<1) | (clkdivide << 16);
+    SPI->SPI_CR.SPIEN = 1; // Enable SPI
+    SPI->SPI_MR.MSTR = 1; // Put SPI in master mode
+    SPI->SPI_CSR0.SCBR = clkdivide; // Set the clock divisor
+    SPI->SPI_CSR0.CPOL = cpol; // Set the polarity
+    SPI->SPI_CSR0.NCPHA = ncpha; // Set the phase
 }
 
+/* Transmits a character (1 byte) over SPI and returns the received character.
+ *    -- send: the character to send over SPI
+ *    -- return: the character received over SPI */
 char spiSendReceive(char send) {
-    //Sends one byte over SPI and returns the received character
-    SPI->SPI_TDR.TD = send;
-    //Wait until Receive Data Register Full (RDRF, bit 0) and TXEMPTY (bit )
-    while (!(SPI->SPI_SR.RDRF) || (SPI->SPI_SR.TXEMPTY));
-    //After these status bits have gone high, the transaction is complete  
-    return (char) (SPI->SPI_RDR.RD);
+    SPI->SPI_TDR.TD = send; // Transmit the character over SPI
+    while (!(SPI->SPI_SR.RDRF)); // Wait until data has been received
+    return (char) (SPI->SPI_RDR.RD); // Return received character
 }
 
+/* Transmits a short (2 bytes) over SPI and returns the received short.
+ *    -- send: the short to send over SPI
+ *    -- return: the short received over SPI */
 short spiSendReceive16(uint16_t send) {
-    //sends one 16-bit short over SPI and returns the received short
-    short rec;
-    rec = spiSendReceive((send & 0xFF00) >> 8); // send data MSB first
-    rec = (rec << 8) | spiSendReceive(send & 0xFF);
+    short rec; // Variable for received data, filled one byte at a time
+    rec = spiSendReceive((send & 0xFF00) >> 8); // Send the MSB of the data first
+    rec = (rec << 8) | spiSendReceive(send & 0xFF); // Send the LSB of the data
     return rec;
 }
 

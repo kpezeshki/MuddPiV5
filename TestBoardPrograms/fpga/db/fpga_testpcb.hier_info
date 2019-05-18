@@ -1,0 +1,31 @@
+|fpga_testpcb
+clk_in => clk_divide[0].CLK
+clk_in => clk_divide[1].CLK
+clk_in => clk_divide[2].CLK
+clk_in => clk_divide[3].CLK
+clk_in => clk_divide[4].CLK
+clk_in => clk_divide[5].CLK
+clk_in => clk_divide[6].CLK
+clk_in => clk_divide[7].CLK
+clk_in => clk_divide[8].CLK
+clk_in => clk_divide[9].CLK
+clk_in => clk_divide[10].CLK
+clk_in => clk_divide[11].CLK
+clk_in => clk_divide[12].CLK
+clk_in => clk_divide[13].CLK
+clk_in => clk_divide[14].CLK
+clk_in => clk_divide[15].CLK
+clk_in => clk_divide[16].CLK
+clk_in => clk_divide[17].CLK
+clk_in => clk_divide[18].CLK
+clk_in => clk_divide[19].CLK
+clk_in => clk_divide[20].CLK
+clk_in => clk_divide[21].CLK
+clk_in => clk_divide[22].CLK
+clk_in => clk_divide[23].CLK
+clk_in => clk_divide[24].CLK
+mcu_in => mcu_out.DATAIN
+clk_out <= clk_divide[24].DB_MAX_OUTPUT_PORT_TYPE
+mcu_out <= mcu_in.DB_MAX_OUTPUT_PORT_TYPE
+
+

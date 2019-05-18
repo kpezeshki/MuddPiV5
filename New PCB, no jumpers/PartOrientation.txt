@@ -1,0 +1,12 @@
+right-hand side of JTAGSAM: all the ground pins
+top-left to bottom-left of JTAGSAM: SAMNRST, SAMTDI, SAMTDO, SAMTCK, SAMTMS
+
+IC: 
+top-row right VCC33
+right-col top VDDPLL
+right-col bot SAMTDO
+bot-row right PA0
+bot-row left SAMTDI
+left-row bot PA7
+left-row top GND
+top-row left PA20
